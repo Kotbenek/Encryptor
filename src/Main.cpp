@@ -56,6 +56,30 @@ int main(int argc, char** argv)
     a->data[5] = 'r';
     cout << "foobar " << Base64::data_to_base64(a) << "\r\n";
     a->~Array();
+        
+    a = Base64::base64_to_data("Zg==");
+    cout << "Zg==     " << a->data << "\r\n";
+    a->~Array();
+    
+    a = Base64::base64_to_data("Zm8=");
+    cout << "Zm8=     " << a->data << "\r\n";
+    a->~Array();
+    
+    a = Base64::base64_to_data("Zm9v");
+    cout << "Zm9v     " << a->data << "\r\n";
+    a->~Array();
+    
+    a = Base64::base64_to_data("Zm9vYg==");
+    cout << "Zm9vYg== " << a->data << "\r\n";
+    a->~Array();
+    
+    a = Base64::base64_to_data("Zm9vYmE=");
+    cout << "Zm9vYmE= " << a->data << "\r\n";
+    a->~Array();
+    
+    a = Base64::base64_to_data("Zm9vYmFy");
+    cout << "Zm9vYmFy " << a->data << "\r\n";
+    a->~Array();
     
     //Exit program
     return 0;
