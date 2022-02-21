@@ -62,27 +62,27 @@ int main(int argc, char** argv)
     
     cout << "\r\n" << "Base64 -> Data" << "\r\n";
         
-    a = Base64::base64_to_data("Zg==");
+    a = Base64::base64_to_data((char*)"Zg==");
     cout << "Zg==         " << a->data << "\r\n";
     a->~Array();
     
-    a = Base64::base64_to_data("Zm8=");
+    a = Base64::base64_to_data((char*)"Zm8=");
     cout << "Zm8=         " << a->data << "\r\n";
     a->~Array();
     
-    a = Base64::base64_to_data("Zm9v");
+    a = Base64::base64_to_data((char*)"Zm9v");
     cout << "Zm9v         " << a->data << "\r\n";
     a->~Array();
     
-    a = Base64::base64_to_data("Zm9vYg==");
+    a = Base64::base64_to_data((char*)"Zm9vYg==");
     cout << "Zm9vYg==     " << a->data << "\r\n";
     a->~Array();
     
-    a = Base64::base64_to_data("Zm9vYmE=");
+    a = Base64::base64_to_data((char*)"Zm9vYmE=");
     cout << "Zm9vYmE=     " << a->data << "\r\n";
     a->~Array();
     
-    a = Base64::base64_to_data("Zm9vYmFy");
+    a = Base64::base64_to_data((char*)"Zm9vYmFy");
     cout << "Zm9vYmFy     " << a->data << "\r\n";
     a->~Array();
     
@@ -135,27 +135,27 @@ int main(int argc, char** argv)
     
     cout << "\r\n" << "Base16 -> Data" << "\r\n";
     
-    a = Base16::base16_to_data("66");
+    a = Base16::base16_to_data((char*)"66");
     cout << "66           " << a->data << "\r\n";
     a->~Array();
     
-    a = Base16::base16_to_data("666F");
+    a = Base16::base16_to_data((char*)"666F");
     cout << "666F         " << a->data << "\r\n";
     a->~Array();
     
-    a = Base16::base16_to_data("666F6F");
+    a = Base16::base16_to_data((char*)"666F6F");
     cout << "666F6F       " << a->data << "\r\n";
     a->~Array();
     
-    a = Base16::base16_to_data("666F6F62");
+    a = Base16::base16_to_data((char*)"666F6F62");
     cout << "666F6F62     " << a->data << "\r\n";
     a->~Array();
     
-    a = Base16::base16_to_data("666F6F6261");
+    a = Base16::base16_to_data((char*)"666F6F6261");
     cout << "666F6F6261   " << a->data << "\r\n";
     a->~Array();
     
-    a = Base16::base16_to_data("666F6F626172");
+    a = Base16::base16_to_data((char*)"666F6F626172");
     cout << "666F6F626172 " << a->data << "\r\n";
     a->~Array();
     
