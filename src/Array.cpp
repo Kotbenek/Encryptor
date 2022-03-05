@@ -1,6 +1,7 @@
 #include "Array.h"
 
 #include <cstdint>
+#include <algorithm>
 
 using namespace std;
 
@@ -20,10 +21,7 @@ Array::Array(Array &a)
     _size = a.size();
     data = new char[_size];
 
-    for (uint64_t i = 0; i < _size; i++)
-    {
-        data[i] = a.data[i];
-    }
+    copy(&a.data[0], &a.data[a.size()], data);
 }
 
 Array::~Array()
