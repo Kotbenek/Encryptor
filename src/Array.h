@@ -12,6 +12,7 @@ public:
     uint64_t size();
     
     Array(uint64_t size);
+    Array(Array &a);
     ~Array();
 
 private:

@@ -15,6 +15,17 @@ Array::Array(uint64_t size)
     _size = size;
 }
 
+Array::Array(Array &a)
+{
+    _size = a.size();
+    data = new char[_size];
+
+    for (uint64_t i = 0; i < _size; i++)
+    {
+        data[i] = a.data[i];
+    }
+}
+
 Array::~Array()
 {
     delete[] data;
