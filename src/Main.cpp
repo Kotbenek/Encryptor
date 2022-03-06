@@ -3,6 +3,7 @@
 #include "Base64.h"
 #include "Base16.h"
 #include "Array.h"
+#include "AES.h"
 
 #include <iostream>
 
@@ -11,9 +12,10 @@ using namespace std;
 int main(int argc, char** argv)
 {
     //Debug
+    
     Array* a;
     
-    cout << "\r\n" << "Data -> Base64" << "\r\n";
+    cout << "Data -> Base64" << "\r\n";
     
     a = new Array(1);
     a->data[0] = 'f';
@@ -158,6 +160,77 @@ int main(int argc, char** argv)
     a = Base16::base16_to_data((char*)"666F6F626172");
     cout << "666F6F626172 " << a->data << "\r\n";
     a->~Array();
+    
+    
+    AES* aes;
+    
+    cout << "\r\n" << "AES -> Encryption" << "\r\n";
+    
+    aes = new AES(AES::key_length::AES256);
+    
+    a = Base16::base16_to_data((char*)"603DEB1015CA71BE2B73AEF0857D77811F352C073B6108D72D9810A30914DFF4");
+    aes->set_key(a);
+    delete a;
+    
+    a = Base16::base16_to_data((char*)"000102030405060708090A0B0C0D0E0F");
+    aes->set_IV(a);
+    delete a;
+    
+    a = Base16::base16_to_data((char*)"6BC1BEE22E409F96E93D7E117393172A");
+    aes->encrypt_CBC(a);
+    cout << Base16::data_to_base16(a) << "\r\n";
+    cout << "F58C4C04D6E5F1BA779EABFB5F7BFBD6" << "\r\n";
+    delete a;
+    
+    cout << "\r\n" << "AES -> Decryption" << "\r\n";
+    
+    a = Base16::base16_to_data((char*)"603DEB1015CA71BE2B73AEF0857D77811F352C073B6108D72D9810A30914DFF4");
+    aes->set_key(a);
+    delete a;
+    
+    a = Base16::base16_to_data((char*)"000102030405060708090A0B0C0D0E0F");
+    aes->set_IV(a);
+    delete a;
+    
+    a = Base16::base16_to_data((char*)"F58C4C04D6E5F1BA779EABFB5F7BFBD6");
+    aes->decrypt_CBC(a);
+    cout << Base16::data_to_base16(a) << "\r\n";
+    cout << "6BC1BEE22E409F96E93D7E117393172A" << "\r\n";
+    delete a;
+    
+    cout << "\r\n" << "AES -> Encryption" << "\r\n";
+    
+    a = Base16::base16_to_data((char*)"603DEB1015CA71BE2B73AEF0857D77811F352C073B6108D72D9810A30914DFF4");
+    aes->set_key(a);
+    delete a;
+    
+    a = Base16::base16_to_data((char*)"000102030405060708090A0B0C0D0E0F");
+    aes->set_IV(a);
+    delete a;
+    
+    a = Base16::base16_to_data((char*)"6BC1BEE22E409F96E93D7E117393172AAE2D8A571E03AC9C9EB76FAC45AF8E5130C81C46A35CE411E5FBC1191A0A52EFF69F2445DF4F9B17AD2B417BE66C3710");
+    aes->encrypt_CBC(a);
+    cout << Base16::data_to_base16(a) << "\r\n";
+    cout << "F58C4C04D6E5F1BA779EABFB5F7BFBD69CFC4E967EDB808D679F777BC6702C7D39F23369A9D9BACFA530E26304231461B2EB05E2C39BE9FCDA6C19078C6A9D1B" << "\r\n";
+    delete a;
+    
+    cout << "\r\n" << "AES -> Decryption" << "\r\n";
+    
+    a = Base16::base16_to_data((char*)"603DEB1015CA71BE2B73AEF0857D77811F352C073B6108D72D9810A30914DFF4");
+    aes->set_key(a);
+    delete a;
+    
+    a = Base16::base16_to_data((char*)"000102030405060708090A0B0C0D0E0F");
+    aes->set_IV(a);
+    delete a;
+    
+    a = Base16::base16_to_data((char*)"F58C4C04D6E5F1BA779EABFB5F7BFBD69CFC4E967EDB808D679F777BC6702C7D39F23369A9D9BACFA530E26304231461B2EB05E2C39BE9FCDA6C19078C6A9D1B");
+    aes->decrypt_CBC(a);
+    cout << Base16::data_to_base16(a) << "\r\n";
+    cout << "6BC1BEE22E409F96E93D7E117393172AAE2D8A571E03AC9C9EB76FAC45AF8E5130C81C46A35CE411E5FBC1191A0A52EFF69F2445DF4F9B17AD2B417BE66C3710" << "\r\n";
+    delete a;
+    
+    delete aes;
     
     //Exit program
     return 0;
