@@ -19,8 +19,8 @@ const char* Base16::data_to_base16(Array* array)
     
     while (array->size() - data_pointer)
     {
-        base16_data[base16_pointer++] = DATA_TO_BASE16_LOOKUP_TABLE[array->data[data_pointer] >> 4];
-        base16_data[base16_pointer++] = DATA_TO_BASE16_LOOKUP_TABLE[array->data[data_pointer] & 0x0F];
+        base16_data[base16_pointer++] = DATA_TO_BASE16_LOOKUP_TABLE[(unsigned char)array->data[data_pointer] >> 4];
+        base16_data[base16_pointer++] = DATA_TO_BASE16_LOOKUP_TABLE[(unsigned char)array->data[data_pointer] & 0x0F];
         
         data_pointer++;
     }

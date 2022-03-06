@@ -20,25 +20,25 @@ const char* Base64::data_to_base64(Array* array)
     uint64_t base64_pointer = 0;
     while (data_left >= 3)
     {
-        base64_data[base64_pointer++] = DATA_TO_BASE64_LOOKUP_TABLE[array->data[data_pointer] >> 2];
-        base64_data[base64_pointer++] = DATA_TO_BASE64_LOOKUP_TABLE[((array->data[data_pointer] << 4) & 0x3F) | (array->data[data_pointer + 1] >> 4)];
-        base64_data[base64_pointer++] = DATA_TO_BASE64_LOOKUP_TABLE[((array->data[data_pointer + 1] << 2) & 0x3F) | (array->data[data_pointer + 2] >> 6)];
-        base64_data[base64_pointer++] = DATA_TO_BASE64_LOOKUP_TABLE[array->data[data_pointer + 2] & 0x3F];
+        base64_data[base64_pointer++] = DATA_TO_BASE64_LOOKUP_TABLE[(unsigned char)array->data[data_pointer] >> 2];
+        base64_data[base64_pointer++] = DATA_TO_BASE64_LOOKUP_TABLE[(unsigned char)(((array->data[data_pointer] << 4) & 0x3F) | (array->data[data_pointer + 1] >> 4))];
+        base64_data[base64_pointer++] = DATA_TO_BASE64_LOOKUP_TABLE[(unsigned char)(((array->data[data_pointer + 1] << 2) & 0x3F) | ((unsigned char)array->data[data_pointer + 2] >> 6))];
+        base64_data[base64_pointer++] = DATA_TO_BASE64_LOOKUP_TABLE[(unsigned char)array->data[data_pointer + 2] & 0x3F];
         
         data_left -= 3;
         data_pointer += 3;
     }
     if (data_left == 2)
     {
-        base64_data[base64_pointer++] = DATA_TO_BASE64_LOOKUP_TABLE[array->data[data_pointer] >> 2];
-        base64_data[base64_pointer++] = DATA_TO_BASE64_LOOKUP_TABLE[((array->data[data_pointer] << 4) & 0x3F) | (array->data[data_pointer + 1] >> 4)];
-        base64_data[base64_pointer++] = DATA_TO_BASE64_LOOKUP_TABLE[((array->data[data_pointer + 1] << 2) & 0x3F)];
+        base64_data[base64_pointer++] = DATA_TO_BASE64_LOOKUP_TABLE[(unsigned char)array->data[data_pointer] >> 2];
+        base64_data[base64_pointer++] = DATA_TO_BASE64_LOOKUP_TABLE[(unsigned char)(((array->data[data_pointer] << 4) & 0x3F) | ((unsigned char)array->data[data_pointer + 1] >> 4))];
+        base64_data[base64_pointer++] = DATA_TO_BASE64_LOOKUP_TABLE[(unsigned char)((array->data[data_pointer + 1] << 2) & 0x3F)];
         base64_data[base64_pointer++] = PADDING;
     }
     else if (data_left == 1)
     {
-        base64_data[base64_pointer++] = DATA_TO_BASE64_LOOKUP_TABLE[array->data[data_pointer] >> 2];
-        base64_data[base64_pointer++] = DATA_TO_BASE64_LOOKUP_TABLE[((array->data[data_pointer] << 4) & 0x3F)];
+        base64_data[base64_pointer++] = DATA_TO_BASE64_LOOKUP_TABLE[(unsigned char)array->data[data_pointer] >> 2];
+        base64_data[base64_pointer++] = DATA_TO_BASE64_LOOKUP_TABLE[(unsigned char)((array->data[data_pointer] << 4) & 0x3F)];
         base64_data[base64_pointer++] = PADDING;
         base64_data[base64_pointer++] = PADDING;
     }
