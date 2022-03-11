@@ -2,8 +2,6 @@
 
 #include <cstdint>
 
-using namespace std;
-
 class Array
 {
 public:

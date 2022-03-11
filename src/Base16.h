@@ -4,8 +4,6 @@
 
 #include <cstdint>
 
-using namespace std;
-
 class Base16
 {
 public:

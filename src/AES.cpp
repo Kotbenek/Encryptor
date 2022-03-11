@@ -1,9 +1,6 @@
 #include "AES.h"
 
-#include <cstdint>
 #include <algorithm>
-
-using namespace std;
 
 AES::AES(key_length len)
 {
@@ -103,7 +100,7 @@ uint8_t AES::encrypt_CBC(Array* data)
                 data->data[j + k * 4 + i] = state->data[k + j * Nb];
         
         //Save IV for next block
-        copy(&data->data[i], &data->data[4 * Nb + i], IV->data);
+        std::copy(&data->data[i], &data->data[4 * Nb + i], IV->data);
     }
     
     delete state;
@@ -122,7 +119,7 @@ uint8_t AES::decrypt_CBC(Array* data)
     for (uint64_t i = 0; i < data->size(); i += 4 * Nb)
     {
         //Store IV for next block
-        copy(&data->data[i], &data->data[4 * Nb + i], next_IV->data);
+        std::copy(&data->data[i], &data->data[4 * Nb + i], next_IV->data);
         
         //Prepare data
         for (uint8_t j = 0; j < 4; j++)
@@ -143,7 +140,7 @@ uint8_t AES::decrypt_CBC(Array* data)
                 data->data[k + j * Nb + i] ^= IV->data[k + j * Nb];
         
         //Save IV for next block
-        copy(&next_IV->data[0], &next_IV->data[4 * Nb], IV->data);
+        std::copy(&next_IV->data[0], &next_IV->data[4 * Nb], IV->data);
     }
     
     delete state;
@@ -269,7 +266,7 @@ void AES::InvMixColumns(Array* state)
     }
     
     //Copy temporary state to state
-    copy(&temp_state->data[0], &temp_state->data[4 * Nb], state->data);
+    std::copy(&temp_state->data[0], &temp_state->data[4 * Nb], state->data);
     
     delete temp_state;
 }
@@ -372,7 +369,7 @@ void AES::MixColumns(Array* state)
     }
     
     //Copy temporary state to state
-    copy(&temp_state->data[0], &temp_state->data[4 * Nb], state->data);
+    std::copy(&temp_state->data[0], &temp_state->data[4 * Nb], state->data);
     
     delete temp_state;
 }

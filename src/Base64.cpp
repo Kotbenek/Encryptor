@@ -3,7 +3,6 @@
 #include "Array.h"
 
 #include <cstddef>
-#include <iostream>
 
 const char* Base64::data_to_base64(Array* array)
 {

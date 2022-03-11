@@ -3,7 +3,6 @@
 #include "Array.h"
 
 #include <cstddef>
-#include <iostream>
 
 const char* Base16::data_to_base16(Array* array)
 {
