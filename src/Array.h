@@ -5,7 +5,7 @@
 class Array
 {
 public:
-    char* data;
+    uint8_t* data;
     
     uint64_t size();
     

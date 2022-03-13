@@ -273,7 +273,7 @@ void AES::InvMixColumns(Array* state)
 
 void AES::InvShiftRows(Array* state)
 {
-    char temp;
+    uint8_t temp;
     
     //Shift row 0 - 0 columns to the right
     //It is already in this state, no need to shift
@@ -306,7 +306,7 @@ void AES::InvSubBytes(Array* state)
 {
     for (uint8_t i = 0; i < 4; i++)
         for (uint8_t j = 0; j < Nb; j++)
-            state->data[j + i * Nb] = Inv_Sbox[(unsigned char)state->data[j + i * Nb]];
+            state->data[j + i * Nb] = Inv_Sbox[(uint8_t)state->data[j + i * Nb]];
 }
 
 void AES::KeyExpansion(Array* K)
@@ -376,7 +376,7 @@ void AES::MixColumns(Array* state)
 
 void AES::RotWord(Array* word)
 {
-    char temp;
+    uint8_t temp;
     
     temp = word->data[0];
     word->data[0] = word->data[1];
@@ -387,7 +387,7 @@ void AES::RotWord(Array* word)
 
 void AES::ShiftRows(Array* state)
 {
-    char temp;
+    uint8_t temp;
 
     //Shift row 0 - 0 columns to the left
     //It is already in this state, no need to shift
@@ -420,13 +420,13 @@ void AES::SubBytes(Array* state)
 {
     for (uint8_t i = 0; i < 4; i++)
         for (uint8_t j = 0; j < Nb; j++)
-            state->data[j + i * Nb] = Sbox[(unsigned char)state->data[j + i * Nb]];
+            state->data[j + i * Nb] = Sbox[(uint8_t)state->data[j + i * Nb]];
 }
 
 void AES::SubWord(Array* word)
 {
     for (uint8_t i = 0; i < 4; i++)
-        word->data[i] = Sbox[(unsigned char)word->data[i]];
+        word->data[i] = Sbox[(uint8_t)word->data[i]];
 }
 
 uint8_t AES::multiply_gf(uint8_t a, uint8_t b)

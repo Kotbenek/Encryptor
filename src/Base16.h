@@ -13,5 +13,5 @@ public:
 private:
     static bool is_base16(char c);
     static const char DATA_TO_BASE16_LOOKUP_TABLE[];
-    static const char BASE16_TO_DATA_LOOKUP_TABLE[];
+    static const uint8_t BASE16_TO_DATA_LOOKUP_TABLE[];
 };

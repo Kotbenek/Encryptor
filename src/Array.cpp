@@ -9,14 +9,14 @@ uint64_t Array::size()
 
 Array::Array(uint64_t size)
 {
-    data = new char[size];
+    data = new uint8_t[size];
     _size = size;
 }
 
 Array::Array(Array &a)
 {
     _size = a.size();
-    data = new char[_size];
+    data = new uint8_t[_size];
 
     std::copy(&a.data[0], &a.data[a.size()], data);
 }
