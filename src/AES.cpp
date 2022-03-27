@@ -60,17 +60,92 @@ uint8_t AES::set_IV(Array* iv)
     return 0;
 }
 
-/*
-uint8_t AES::encrypt_CBC_PKCS7()
+Array* AES::encrypt_CBC_PKCS7(Array* data)
 {
-    //TODO
+    if (!key_set) return NULL;
+    if (!iv_set) return NULL;
+    if (data->size() == 0) return NULL;
+    
+    Array* encrypted_data = new Array(data->size() + ((4 * Nb) - data->size() % (4 * Nb)));
+    
+    //Buffer size for N-1 AES data blocks
+    uint64_t buffer_size = data->size() - (data->size() % (4 * Nb));
+    
+    Array* buffer;
+    
+    //If there is at least one full AES data block
+    if (data->size() >= 4 * Nb)
+    {
+        //Encrypt N-1 AES data blocks
+        buffer = new Array(buffer_size);
+        
+        std::copy(&data->data[0], &data->data[buffer_size], buffer->data);
+        encrypt_CBC(buffer);
+        std::copy(&buffer->data[0], &buffer->data[buffer_size], encrypted_data->data);
+        
+        delete buffer;
+    }
+    
+    //Add PKCS#7 padding and encrypt last AES data block
+    buffer = new Array(4 * Nb);
+    
+    std::copy(&data->data[buffer_size], &data->data[data->size()], buffer->data);
+    for (uint8_t i = data->size() % (4 * Nb); i < 4 * Nb; i++)
+        buffer->data[i] = (4 * Nb) - (data->size() % (4 * Nb));
+    encrypt_CBC(buffer);
+    std::copy(&buffer->data[0], &buffer->data[4 * Nb], &encrypted_data->data[buffer_size]);
+    
+    delete buffer;
+    
+    return encrypted_data;
 }
 
-uint8_t AES::decrypt_CBC_PKCS7()
+Array* AES::decrypt_CBC_PKCS7(Array* data)
 {
-    //TODO
+    if (!key_set) return NULL;
+    if (!iv_set) return NULL;
+    if (data->size() == 0) return NULL;
+    if (data->size() % (4 * Nb)) return NULL;
+    
+    Array* buffer = new Array(*data);
+    
+    decrypt_CBC(buffer);
+    
+    //Read the PKCS#7 padding value
+    uint8_t padding = buffer->data[buffer->size() - 1];
+    
+    //Check the PKCS#7 padding
+    
+    if (padding == 0)
+    {
+        //Padding is never zero
+        //Padding corrupted - decryption not successful
+        delete buffer;
+        return NULL;
+    }
+    
+    //Check every padding byte
+    for (uint64_t i = 0; i < padding; i++)
+    {
+        //If checked padding byte is not equal to the expected value
+        if (buffer->data[buffer->size() - 1 - i] != padding)
+        {
+            //Padding corrupted - decryption not successful
+            delete buffer;
+            return NULL;
+        }
+    }
+    
+    //Return decrypted data without padding
+    uint64_t decrypted_data_size = data->size() - padding;
+    Array* decrypted_data = new Array(decrypted_data_size);
+    
+    std::copy(&buffer->data[0], &buffer->data[decrypted_data_size], decrypted_data->data);
+    
+    delete buffer;
+    
+    return decrypted_data;
 }
-*/
 
 uint8_t AES::encrypt_CBC(Array* data)
 {
