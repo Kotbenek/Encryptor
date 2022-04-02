@@ -3,6 +3,7 @@
 #include "Array.h"
 
 #include <cstdint>
+#include <string>
 
 class AES
 {
@@ -19,6 +20,9 @@ public:
     
     uint8_t set_key(Array* K);
     uint8_t set_IV(Array* iv);
+
+    uint8_t encrypt_file_CBC_PKCS7(std::string file_in, std::string file_out);
+    uint8_t decrypt_file_CBC_PKCS7(std::string file_in, std::string file_out);
     Array* encrypt_CBC_PKCS7(Array* data);
     Array* decrypt_CBC_PKCS7(Array* data);
     uint8_t encrypt_CBC(Array* data);

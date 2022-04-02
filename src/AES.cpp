@@ -1,6 +1,7 @@
 #include "AES.h"
 
 #include <algorithm>
+#include <fstream>
 
 AES::AES(key_length len)
 {
@@ -60,11 +61,68 @@ uint8_t AES::set_IV(Array* iv)
     return 0;
 }
 
+uint8_t AES::encrypt_file_CBC_PKCS7(std::string file_in, std::string file_out)
+{
+    //Prepare input and output streams
+    std::ifstream fs_in(file_in, std::ifstream::binary);
+    std::ofstream fs_out(file_out, std::ofstream::binary);
+    
+    //Prepare buffer for data
+    Array* buffer = new Array(256 * 4 * Nb);
+    
+    //Read the first chunk of file
+    fs_in.read((char*)buffer->data, buffer->size());
+    
+    //While the buffer is full
+    while (!(buffer->size() - fs_in.gcount()))
+    {
+        //Encrypt the buffer
+        encrypt_CBC(buffer);
+        
+        //Write the encrypted buffer to the output file
+        fs_out.write((char*)buffer->data, buffer->size());
+        
+        //Read next data chunk
+        fs_in.read((char*)buffer->data, buffer->size());
+    }
+    
+    //Process the last file chunk
+    Array* last_buffer = new Array(fs_in.gcount());
+    std::copy(&buffer->data[0], &buffer->data[last_buffer->size()], last_buffer->data);
+    delete buffer;
+    
+    //Encrypt the buffer
+    buffer = encrypt_CBC_PKCS7(last_buffer);
+    
+    //Write the encrypted buffer to the output file
+    fs_out.write((char*)buffer->data, buffer->size());
+    
+    delete last_buffer;
+    delete buffer;
+    
+    return 0;
+}
+
+uint8_t AES::decrypt_file_CBC_PKCS7(std::string file_in, std::string file_out)
+{
+    //TODO
+    return 0;
+}
+
 Array* AES::encrypt_CBC_PKCS7(Array* data)
 {
     if (!key_set) return NULL;
     if (!iv_set) return NULL;
-    if (data->size() == 0) return NULL;
+    
+    if (data->size() == 0)
+    {
+        Array* padding_data = new Array(4 * Nb);
+        for (uint8_t i = 0; i < padding_data->size(); i++)
+            padding_data->data[i] = padding_data->size();
+        
+        encrypt_CBC(padding_data);
+        return padding_data;
+    }
     
     Array* encrypted_data = new Array(data->size() + ((4 * Nb) - data->size() % (4 * Nb)));
     
