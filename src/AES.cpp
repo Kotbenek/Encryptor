@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <cstdio>
 
 AES::AES(key_length len)
 {
@@ -105,8 +106,67 @@ uint8_t AES::encrypt_file_CBC_PKCS7(std::string file_in, std::string file_out)
 
 uint8_t AES::decrypt_file_CBC_PKCS7(std::string file_in, std::string file_out)
 {
-    //TODO
-    return 0;
+    //Prepare input and output streams
+    std::ifstream fs_in(file_in, std::ifstream::binary);
+    std::ofstream fs_out(file_out, std::ofstream::binary);
+    
+    //Prepare buffer for data
+    Array* buffer = new Array(256 * 4 * Nb);
+    
+    //Read the first chunk of file
+    fs_in.read((char*)buffer->data, buffer->size());
+    
+    uint32_t gcount = fs_in.gcount();
+    bool input_stream_reached_EOF = fs_in.peek() == EOF;
+    
+    //While the input stream did not reach EOF
+    //(this implies the buffer is full)
+    while (!input_stream_reached_EOF)
+    {
+        //Decrypt the buffer
+        decrypt_CBC(buffer);
+        
+        //Write the decrypted buffer to the output file
+        fs_out.write((char*)buffer->data, buffer->size());
+        
+        //Read next data chunk
+        fs_in.read((char*)buffer->data, buffer->size());
+        
+        gcount = fs_in.gcount();
+        input_stream_reached_EOF = fs_in.peek() == EOF;
+    }
+    
+    //Process the last file chunk
+    Array* last_buffer = new Array(gcount);
+    std::copy(&buffer->data[0], &buffer->data[last_buffer->size()], last_buffer->data);
+    delete buffer;
+    
+    //Decrypt the buffer
+    buffer = decrypt_CBC_PKCS7(last_buffer);
+    
+    delete last_buffer;
+    
+    if (buffer == NULL)
+    {
+        //Padding corrupted - decryption not successful
+        
+        //Close the output stream
+        fs_out.close();
+        
+        //Remove output file
+        remove(file_out.c_str());
+        
+        return 1;
+    }
+    else
+    {
+        //Write the decrypted buffer to the output file
+        fs_out.write((char*)buffer->data, buffer->size());
+        
+        delete buffer;
+        
+        return 0;
+    }
 }
 
 Array* AES::encrypt_CBC_PKCS7(Array* data)
