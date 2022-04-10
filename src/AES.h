@@ -47,6 +47,8 @@ private:
     //Inverse substitution table
     static const uint8_t Inv_Sbox[];
     
+    static const uint32_t FILE_BUFFER_SIZE = 256 * 4 * Nb;
+    
     bool key_set;
     bool iv_set;
     

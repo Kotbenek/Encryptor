@@ -69,7 +69,7 @@ uint8_t AES::encrypt_file_CBC_PKCS7(std::string file_in, std::string file_out)
     std::ofstream fs_out(file_out, std::ofstream::binary);
     
     //Prepare buffer for data
-    Array* buffer = new Array(256 * 4 * Nb);
+    Array* buffer = new Array(FILE_BUFFER_SIZE);
     
     //Read the first chunk of file
     fs_in.read((char*)buffer->data, buffer->size());
@@ -111,7 +111,7 @@ uint8_t AES::decrypt_file_CBC_PKCS7(std::string file_in, std::string file_out)
     std::ofstream fs_out(file_out, std::ofstream::binary);
     
     //Prepare buffer for data
-    Array* buffer = new Array(256 * 4 * Nb);
+    Array* buffer = new Array(FILE_BUFFER_SIZE);
     
     //Read the first chunk of file
     fs_in.read((char*)buffer->data, buffer->size());
