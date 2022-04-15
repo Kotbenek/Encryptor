@@ -53,7 +53,7 @@ uint8_t AES::set_key(Array* K)
 
 uint8_t AES::set_IV(Array* iv)
 {
-    if (iv->size() != 4 * Nb) return 1;
+    if (iv->size() != STATE_SIZE) return 1;
     
     IV = new Array(*iv);
     
@@ -176,7 +176,7 @@ Array* AES::encrypt_CBC_PKCS7(Array* data)
     
     if (data->size() == 0)
     {
-        Array* padding_data = new Array(4 * Nb);
+        Array* padding_data = new Array(STATE_SIZE);
         for (uint8_t i = 0; i < padding_data->size(); i++)
             padding_data->data[i] = padding_data->size();
         
@@ -184,15 +184,15 @@ Array* AES::encrypt_CBC_PKCS7(Array* data)
         return padding_data;
     }
     
-    Array* encrypted_data = new Array(data->size() + ((4 * Nb) - data->size() % (4 * Nb)));
+    Array* encrypted_data = new Array(data->size() + (STATE_SIZE - data->size() % STATE_SIZE));
     
     //Buffer size for N-1 AES data blocks
-    uint64_t buffer_size = data->size() - (data->size() % (4 * Nb));
+    uint64_t buffer_size = data->size() - data->size() % STATE_SIZE;
     
     Array* buffer;
     
     //If there is at least one full AES data block
-    if (data->size() >= 4 * Nb)
+    if (data->size() >= STATE_SIZE)
     {
         //Encrypt N-1 AES data blocks
         buffer = new Array(buffer_size);
@@ -205,13 +205,13 @@ Array* AES::encrypt_CBC_PKCS7(Array* data)
     }
     
     //Add PKCS#7 padding and encrypt last AES data block
-    buffer = new Array(4 * Nb);
+    buffer = new Array(STATE_SIZE);
     
     std::copy(&data->data[buffer_size], &data->data[data->size()], buffer->data);
-    for (uint8_t i = data->size() % (4 * Nb); i < 4 * Nb; i++)
-        buffer->data[i] = (4 * Nb) - (data->size() % (4 * Nb));
+    for (uint8_t i = data->size() % STATE_SIZE; i < STATE_SIZE; i++)
+        buffer->data[i] = STATE_SIZE - data->size() % STATE_SIZE;
     encrypt_CBC(buffer);
-    std::copy(&buffer->data[0], &buffer->data[4 * Nb], &encrypted_data->data[buffer_size]);
+    std::copy(&buffer->data[0], &buffer->data[STATE_SIZE], &encrypted_data->data[buffer_size]);
     
     delete buffer;
     
@@ -223,7 +223,7 @@ Array* AES::decrypt_CBC_PKCS7(Array* data)
     if (!key_set) return NULL;
     if (!iv_set) return NULL;
     if (data->size() == 0) return NULL;
-    if (data->size() % (4 * Nb)) return NULL;
+    if (data->size() % STATE_SIZE) return NULL;
     
     Array* buffer = new Array(*data);
     
@@ -270,30 +270,30 @@ uint8_t AES::encrypt_CBC(Array* data)
     if (!key_set) return 1;
     if (!iv_set) return 1;
     
-    Array* state = new Array(4 * Nb);
+    Array* state = new Array(STATE_SIZE);
     
-    for (uint64_t i = 0; i < data->size(); i += 4 * Nb)
+    for (uint64_t i = 0; i < data->size(); i += STATE_SIZE)
     {
         //Add IV
-        for (uint8_t j = 0; j < 4; j++)
+        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
             for (uint8_t k = 0; k < Nb; k++)
                 data->data[k + j * Nb + i] ^= IV->data[k + j * Nb];
         
         //Prepare data
-        for (uint8_t j = 0; j < 4; j++)
+        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
             for (uint8_t k = 0; k < Nb; k++)
-                state->data[k + j * Nb] = data->data[j + k * 4 + i];
+                state->data[k + j * Nb] = data->data[j + k * NUMBER_OF_ROWS + i];
         
         //Encrypt data
         Cipher(state);
         
         //Unload data
-        for (uint8_t j = 0; j < 4; j++)
+        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
             for (uint8_t k = 0; k < Nb; k++)
-                data->data[j + k * 4 + i] = state->data[k + j * Nb];
+                data->data[j + k * NUMBER_OF_ROWS + i] = state->data[k + j * Nb];
         
         //Save IV for next block
-        std::copy(&data->data[i], &data->data[4 * Nb + i], IV->data);
+        std::copy(&data->data[i], &data->data[STATE_SIZE + i], IV->data);
     }
     
     delete state;
@@ -306,34 +306,34 @@ uint8_t AES::decrypt_CBC(Array* data)
     if (!key_set) return 1;
     if (!iv_set) return 1;
     
-    Array* state = new Array(4 * Nb);
-    Array* next_IV = new Array(4 * Nb);
+    Array* state = new Array(STATE_SIZE);
+    Array* next_IV = new Array(STATE_SIZE);
     
-    for (uint64_t i = 0; i < data->size(); i += 4 * Nb)
+    for (uint64_t i = 0; i < data->size(); i += STATE_SIZE)
     {
         //Store IV for next block
-        std::copy(&data->data[i], &data->data[4 * Nb + i], next_IV->data);
+        std::copy(&data->data[i], &data->data[STATE_SIZE + i], next_IV->data);
         
         //Prepare data
-        for (uint8_t j = 0; j < 4; j++)
+        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
             for (uint8_t k = 0; k < Nb; k++)
-                state->data[k + j * Nb] = data->data[j + k * 4 + i];
+                state->data[k + j * Nb] = data->data[j + k * NUMBER_OF_ROWS + i];
         
         //Decrypt data
         InvCipher(state);
         
         //Unload data
-        for (uint8_t j = 0; j < 4; j++)
+        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
             for (uint8_t k = 0; k < Nb; k++)
-                data->data[j + k * 4 + i] = state->data[k + j * Nb];
+                data->data[j + k * NUMBER_OF_ROWS + i] = state->data[k + j * Nb];
         
         //Add IV
-        for (uint8_t j = 0; j < 4; j++)
+        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
             for (uint8_t k = 0; k < Nb; k++)
                 data->data[k + j * Nb + i] ^= IV->data[k + j * Nb];
         
         //Save IV for next block
-        std::copy(&next_IV->data[0], &next_IV->data[4 * Nb], IV->data);
+        std::copy(&next_IV->data[0], &next_IV->data[STATE_SIZE], IV->data);
     }
     
     delete state;
@@ -389,9 +389,9 @@ const uint8_t AES::Inv_Sbox[] =
 
 void AES::AddRoundKey(Array* state, uint8_t round_number)
 {
-    for (uint8_t i = 0; i < 4; i++)
+    for (uint8_t i = 0; i < NUMBER_OF_ROWS; i++)
         for (uint8_t j = 0; j < Nb; j++)
-            state->data[j + i * Nb] ^= Round_Key->data[i + j * 4 + round_number * Nb * 4];
+            state->data[j + i * Nb] ^= Round_Key->data[i + j * NUMBER_OF_ROWS + round_number * STATE_SIZE];
 }
 
 void AES::Cipher(Array* data)
@@ -431,7 +431,7 @@ void AES::InvCipher(Array* data)
 void AES::InvMixColumns(Array* state)
 {
     //Create the temporary state
-    Array* temp_state = new Array(4 * Nb);
+    Array* temp_state = new Array(STATE_SIZE);
     
     //Mix each column
     for (uint8_t i = 0; i < Nb; i++)
@@ -459,7 +459,7 @@ void AES::InvMixColumns(Array* state)
     }
     
     //Copy temporary state to state
-    std::copy(&temp_state->data[0], &temp_state->data[4 * Nb], state->data);
+    std::copy(&temp_state->data[0], &temp_state->data[STATE_SIZE], state->data);
     
     delete temp_state;
 }
@@ -497,23 +497,23 @@ void AES::InvShiftRows(Array* state)
 
 void AES::InvSubBytes(Array* state)
 {
-    for (uint8_t i = 0; i < 4; i++)
+    for (uint8_t i = 0; i < NUMBER_OF_ROWS; i++)
         for (uint8_t j = 0; j < Nb; j++)
             state->data[j + i * Nb] = Inv_Sbox[(uint8_t)state->data[j + i * Nb]];
 }
 
 void AES::KeyExpansion(Array* K)
 {
-    Array* temp = new Array(4);
+    Array* temp = new Array(NUMBER_OF_ROWS);
     
     for (uint8_t i = 0; i < Nk; i++)
-        for (uint8_t j = 0; j < 4; j++)
-            Round_Key->data[4 * i + j] = K->data[4 * i + j];
+        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
+            Round_Key->data[NUMBER_OF_ROWS * i + j] = K->data[NUMBER_OF_ROWS * i + j];
     
     for (uint8_t i = Nk; i < Nb * (Nr + 1); i++)
     {
-        for (uint8_t j = 0; j < 4; j++)
-            temp->data[j] = Round_Key->data[4 * (i - 1) + j];
+        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
+            temp->data[j] = Round_Key->data[NUMBER_OF_ROWS * (i - 1) + j];
         
         if (i % Nk == 0)
         {
@@ -524,8 +524,8 @@ void AES::KeyExpansion(Array* K)
         else if (Nk > 6 && i % Nk == 4)
             SubWord(temp);
         
-        for (uint8_t j = 0; j < 4; j++)
-            Round_Key->data[4 * i + j] = Round_Key->data[4 * (i - Nk) + j] ^ temp->data[j];
+        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
+            Round_Key->data[NUMBER_OF_ROWS * i + j] = Round_Key->data[NUMBER_OF_ROWS * (i - Nk) + j] ^ temp->data[j];
     }
     
     delete temp;
@@ -534,7 +534,7 @@ void AES::KeyExpansion(Array* K)
 void AES::MixColumns(Array* state)
 {
     //Create the temporary state
-    Array* temp_state = new Array(4 * Nb);
+    Array* temp_state = new Array(STATE_SIZE);
     
     //Mix each column
     for (uint8_t i = 0; i < Nb; i++)
@@ -562,7 +562,7 @@ void AES::MixColumns(Array* state)
     }
     
     //Copy temporary state to state
-    std::copy(&temp_state->data[0], &temp_state->data[4 * Nb], state->data);
+    std::copy(&temp_state->data[0], &temp_state->data[STATE_SIZE], state->data);
     
     delete temp_state;
 }
@@ -611,14 +611,14 @@ void AES::ShiftRows(Array* state)
 
 void AES::SubBytes(Array* state)
 {
-    for (uint8_t i = 0; i < 4; i++)
+    for (uint8_t i = 0; i < NUMBER_OF_ROWS; i++)
         for (uint8_t j = 0; j < Nb; j++)
             state->data[j + i * Nb] = Sbox[(uint8_t)state->data[j + i * Nb]];
 }
 
 void AES::SubWord(Array* word)
 {
-    for (uint8_t i = 0; i < 4; i++)
+    for (uint8_t i = 0; i < NUMBER_OF_ROWS; i++)
         word->data[i] = Sbox[(uint8_t)word->data[i]];
 }
 

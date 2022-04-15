@@ -40,6 +40,10 @@ private:
     
     //Number of columns (32-bit words) comprising the State
     static const uint8_t Nb = 4;
+    //Number of rows comprising the State
+    static const uint8_t NUMBER_OF_ROWS = 4;
+    //State size
+    static const uint8_t STATE_SIZE = NUMBER_OF_ROWS * Nb;
     //Round constant
     static const uint8_t Rcon[];
     //Substitution table
