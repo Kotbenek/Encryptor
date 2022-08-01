@@ -34,7 +34,6 @@ build: $(OBJ_FILES) | $(BIN_DIR)
 clean:
 	@if [ -d ./$(BIN_DIR) ]; then echo Cleaning $(BIN_DIR); rm -f $(BIN_DIR)/*; fi
 
-cleaner:
-	@if [ -d ./$(BIN_DIR) ]; then echo Cleaning $(BIN_DIR); rm -f $(BIN_DIR)/*; fi
+cleaner: | clean
 	@if [ -d ./$(OBJ_DIR) ]; then echo Cleaning $(OBJ_DIR); rm -f $(OBJ_DIR)/*; fi
 
