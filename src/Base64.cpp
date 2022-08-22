@@ -6,10 +6,10 @@
 
 const char* Base64::data_to_base64(Array* array)
 {
-    //Data is 8b/char, base64 is 6b/char; base64_size = ceiling(4/3 * data_size)
+    //Data is 8b/char, base64 is 6b/char; base64_size = 4 * ceiling(data_size / 3)
     //Ceiling: x / y + (x % y != 0)
     //Additional space for \0 char
-    uint64_t buffer_size = array->size() * 4 / 3 + (array->size() * 4 % 3 != 0) + 1;
+    uint64_t buffer_size = 4 * (array->size() / 3 + (array->size() % 3 != 0)) + 1;
     
     char* base64_data = new char[buffer_size];
     base64_data[buffer_size - 1] = 0;
