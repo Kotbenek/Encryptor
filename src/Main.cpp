@@ -485,7 +485,7 @@ int run_action()
             std::cerr << ILLEGAL_STATE;
         }
         
-        if (aes->set_key(key))
+        if (!key || aes->set_key(key))
         {
             delete key;
             std::cerr << "Invalid key." << "\r\n";
@@ -505,7 +505,7 @@ int run_action()
             std::cerr << ILLEGAL_STATE;
         }
         
-        if (aes->set_IV(iv))
+        if (!iv || aes->set_IV(iv))
         {
             delete iv;
             std::cerr << "Invalid IV." << "\r\n";
