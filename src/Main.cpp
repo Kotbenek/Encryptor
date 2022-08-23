@@ -7,6 +7,12 @@
 
 #include <iostream>
 
+#define ILLEGAL_STATE std::string("Illegal state. File ") + \
+                      std::string(__FILE__) + \
+                      std::string(", line ") + \
+                      std::to_string(__LINE__) + \
+                      "\r\n"
+
 struct
 {
     std::string program_name;
@@ -464,7 +470,7 @@ int run_action()
         else
         {
             //This should not happen
-            std::cerr << "Illegal state. File " << __FILE__ << ", line " << __LINE__ << "\r\n";
+            std::cerr << ILLEGAL_STATE;
         }
         
         Array* key = NULL;
@@ -480,7 +486,7 @@ int run_action()
         else
         {
             //This should not happen
-            std::cerr << "Illegal state. File " << __FILE__ << ", line " << __LINE__ << "\r\n";
+            std::cerr << ILLEGAL_STATE;
         }
         
         if (aes->set_key(key))
@@ -504,7 +510,7 @@ int run_action()
         else
         {
             //This should not happen
-            std::cerr << "Illegal state. File " << __FILE__ << ", line " << __LINE__ << "\r\n";
+            std::cerr << ILLEGAL_STATE;
         }
         
         if (aes->set_IV(iv))
@@ -532,7 +538,7 @@ int run_action()
         else
         {
             //This should not happen
-            std::cerr << "Illegal state. File " << __FILE__ << ", line " << __LINE__ << "\r\n";
+            std::cerr << ILLEGAL_STATE;
         }
         
         if (parameters.block_cipher_mode == "cbc")
@@ -554,13 +560,13 @@ int run_action()
             else
             {
                 //This should not happen
-                std::cerr << "Illegal state. File " << __FILE__ << ", line " << __LINE__ << "\r\n";
+                std::cerr << ILLEGAL_STATE;
             }
         }
         else
         {
             //This should not happen
-            std::cerr << "Illegal state. File " << __FILE__ << ", line " << __LINE__ << "\r\n";
+            std::cerr << ILLEGAL_STATE;
         }
         
         if (parameters.output_type == "base16")
@@ -574,7 +580,7 @@ int run_action()
         else
         {
             //This should not happen
-            std::cerr << "Illegal state. File " << __FILE__ << ", line " << __LINE__ << "\r\n";
+            std::cerr << ILLEGAL_STATE;
         }
         
         delete processed_data;
@@ -584,7 +590,7 @@ int run_action()
     else
     {
         //This should not happen
-        std::cerr << "Illegal state. File " << __FILE__ << ", line " << __LINE__ << "\r\n";
+        std::cerr << ILLEGAL_STATE;
     }
     
     return 0;
