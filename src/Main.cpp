@@ -476,13 +476,9 @@ int run_action()
         Array* key = NULL;
         
         if (parameters.key_type == "base16")
-        {
             key = Base16::base16_to_data((char*)parameters.key_data.c_str());
-        }
         else if (parameters.key_type == "base64")
-        {
             key = Base64::base64_to_data((char*)parameters.key_data.c_str());
-        }
         else
         {
             //This should not happen
@@ -500,13 +496,9 @@ int run_action()
         Array* iv = NULL;
         
         if (parameters.iv_type == "base16")
-        {
             iv = Base16::base16_to_data((char*)parameters.iv_data.c_str());
-        }
         else if (parameters.iv_type == "base64")
-        {
             iv = Base64::base64_to_data((char*)parameters.iv_data.c_str());
-        }
         else
         {
             //This should not happen
@@ -524,13 +516,9 @@ int run_action()
         Array* processed_data = NULL;
         
         if (parameters.input_type == "base16")
-        {
             data = Base16::base16_to_data((char*)parameters.input_data.c_str());
-        }
         else if (parameters.input_type == "base64")
-        {
             data = Base64::base64_to_data((char*)parameters.input_data.c_str());
-        }
         else if (parameters.input_type == "file")
         {
             //No additional action required
