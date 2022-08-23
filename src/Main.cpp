@@ -429,6 +429,18 @@ int parse_args(int argc, char** argv)
         }
     }
     
+    if (parameters.input_type == "file" && parameters.output_type != "file")
+    {
+        std::cerr << "File input requires file output.";
+        return 1;
+    }
+    
+    if (parameters.output_type == "file" && parameters.input_type != "file")
+    {
+        std::cerr << "File output requires file input.";
+        return 1;
+    }
+    
     return 0;
 }
 
@@ -503,6 +515,7 @@ int run_action()
         }
         
         Array* data = NULL;
+        Array* processed_data = NULL;
         
         if (parameters.input_type == "base16")
         {
@@ -514,8 +527,7 @@ int run_action()
         }
         else if (parameters.input_type == "file")
         {
-            std::cerr << "Not yet implemented." << "\r\n";
-            return 1;
+            //No additional action required
         }
         else
         {
@@ -527,11 +539,17 @@ int run_action()
         {
             if (parameters.action == "encrypt")
             {
-                aes->encrypt_CBC(data);
+                if (parameters.input_type != "file")
+                    processed_data = aes->encrypt_CBC_PKCS7(data);
+                else
+                    aes->encrypt_file_CBC_PKCS7(parameters.input_data, parameters.output_data);
             }
             else if (parameters.action == "decrypt")
             {
-                aes->decrypt_CBC(data);
+                if (parameters.input_type != "file")
+                    processed_data = aes->decrypt_CBC_PKCS7(data);
+                else
+                    aes->decrypt_file_CBC_PKCS7(parameters.input_data, parameters.output_data);
             }
             else
             {
@@ -546,17 +564,12 @@ int run_action()
         }
         
         if (parameters.output_type == "base16")
-        {
-            std::cout << Base16::data_to_base16(data) << "\r\n";
-        }
+            std::cout << Base16::data_to_base16(processed_data);
         else if (parameters.output_type == "base64")
-        {
-            std::cout << Base64::data_to_base64(data) << "\r\n";
-        }
+            std::cout << Base64::data_to_base64(processed_data);
         else if (parameters.output_type == "file")
         {
-            std::cerr << "Not yet implemented." << "\r\n";
-            return 1;
+            //No additional action required
         }
         else
         {
@@ -564,6 +577,7 @@ int run_action()
             std::cerr << "Illegal state. File " << __FILE__ << ", line " << __LINE__ << "\r\n";
         }
         
+        delete processed_data;
         delete data;
         delete aes;
     }
