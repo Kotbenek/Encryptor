@@ -471,6 +471,7 @@ int run_action()
         {
             //This should not happen
             std::cerr << ILLEGAL_STATE;
+            return 1;
         }
         
         Array* key = NULL;
@@ -483,6 +484,7 @@ int run_action()
         {
             //This should not happen
             std::cerr << ILLEGAL_STATE;
+            return 1;
         }
         
         if (!key || aes->set_key(key))
@@ -503,6 +505,7 @@ int run_action()
         {
             //This should not happen
             std::cerr << ILLEGAL_STATE;
+            return 1;
         }
         
         if (!iv || aes->set_IV(iv))
@@ -527,6 +530,7 @@ int run_action()
         {
             //This should not happen
             std::cerr << ILLEGAL_STATE;
+            return 1;
         }
         
         if (parameters.block_cipher_mode == "cbc")
@@ -549,12 +553,14 @@ int run_action()
             {
                 //This should not happen
                 std::cerr << ILLEGAL_STATE;
+                return 1;
             }
         }
         else
         {
             //This should not happen
             std::cerr << ILLEGAL_STATE;
+            return 1;
         }
         
         if (parameters.output_type == "base16")
@@ -569,6 +575,7 @@ int run_action()
         {
             //This should not happen
             std::cerr << ILLEGAL_STATE;
+            return 1;
         }
         
         delete processed_data;
@@ -579,6 +586,7 @@ int run_action()
     {
         //This should not happen
         std::cerr << ILLEGAL_STATE;
+        return 1;
     }
     
     return 0;
