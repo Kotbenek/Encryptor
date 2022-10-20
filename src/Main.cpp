@@ -4,14 +4,9 @@
 #include "Base16.h"
 #include "Array.h"
 #include "AES.h"
+#include "error_handler.h"
 
 #include <iostream>
-
-#define ILLEGAL_STATE std::string("Illegal state. File ") + \
-                      std::string(__FILE__) + \
-                      std::string(", line ") + \
-                      std::to_string(__LINE__) + \
-                      "\r\n"
 
 struct
 {
@@ -470,8 +465,7 @@ int run_action()
         else
         {
             //This should not happen
-            std::cerr << ILLEGAL_STATE;
-            return 1;
+            illegal_state_handler(__FILE__, __LINE__);
         }
         
         Array* key = NULL;
@@ -483,8 +477,7 @@ int run_action()
         else
         {
             //This should not happen
-            std::cerr << ILLEGAL_STATE;
-            return 1;
+            illegal_state_handler(__FILE__, __LINE__);
         }
         
         if (!key || aes->set_key(key))
@@ -504,8 +497,7 @@ int run_action()
         else
         {
             //This should not happen
-            std::cerr << ILLEGAL_STATE;
-            return 1;
+            illegal_state_handler(__FILE__, __LINE__);
         }
         
         if (!iv || aes->set_IV(iv))
@@ -529,8 +521,7 @@ int run_action()
         else
         {
             //This should not happen
-            std::cerr << ILLEGAL_STATE;
-            return 1;
+            illegal_state_handler(__FILE__, __LINE__);
         }
         
         if (parameters.block_cipher_mode == "cbc")
@@ -552,15 +543,13 @@ int run_action()
             else
             {
                 //This should not happen
-                std::cerr << ILLEGAL_STATE;
-                return 1;
+                illegal_state_handler(__FILE__, __LINE__);
             }
         }
         else
         {
             //This should not happen
-            std::cerr << ILLEGAL_STATE;
-            return 1;
+            illegal_state_handler(__FILE__, __LINE__);
         }
         
         if (parameters.output_type == "base16")
@@ -574,8 +563,7 @@ int run_action()
         else
         {
             //This should not happen
-            std::cerr << ILLEGAL_STATE;
-            return 1;
+            illegal_state_handler(__FILE__, __LINE__);
         }
         
         delete processed_data;
@@ -585,8 +573,7 @@ int run_action()
     else
     {
         //This should not happen
-        std::cerr << ILLEGAL_STATE;
-        return 1;
+        illegal_state_handler(__FILE__, __LINE__);
     }
     
     return 0;
