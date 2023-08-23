@@ -10,8 +10,6 @@
 
 struct
 {
-    std::string program_name;
-    
     bool help = false;
     
     std::string input_type;
@@ -39,14 +37,14 @@ int main(int argc, char** argv)
     //Parse command line arguments
     if (parse_args(argc, argv))
     {
-        std::cerr << "An error occured during command line argument parsing." << "\r\n";
+        std::cerr << "An error occured during command line argument parsing.\n";
         return 1;
     }
     
     //Display help
     if (argc == 1 || parameters.help)
     {
-        display_help(parameters.program_name);
+        display_help();
         return 0;
     }
     
@@ -54,104 +52,101 @@ int main(int argc, char** argv)
     return run_action();
 }
 
-void display_help(std::string program_name)
+void display_help()
 {
-    std::cout << "\r\n"
-              << "Usage: " << program_name << " input output action algorithm" << "\r\n"
-              << "\r\n"
-              << "Options:" << "\r\n"
-              << "    input:" << "\r\n"
-              << "        -i b16 data_in_base16" << "\r\n"
-              << "        -i base16 data_in_base16" << "\r\n"
-              << "        --input b16 data_in_base16" << "\r\n"
-              << "        --input base16 data_in_base16" << "\r\n"
-              << "            Input data provided in base16 format" << "\r\n"
-              << "        -i b64 data_in_base64" << "\r\n"
-              << "        -i base64 data_in_base64" << "\r\n"
-              << "        --input b64 data_in_base64" << "\r\n"
-              << "        --input base64 data_in_base64" << "\r\n"
-              << "            Input data provided in base64 format" << "\r\n"
-              << "        -i f filename" << "\r\n"
-              << "        -i file filename" << "\r\n"
-              << "        --input f filename" << "\r\n"
-              << "        --input file filename" << "\r\n"
-              << "            Input data provided in specified file" << "\r\n"
-              << "    output:" << "\r\n"
-              << "        -o b16" << "\r\n"
-              << "        -o base16" << "\r\n"
-              << "        --output b16" << "\r\n"
-              << "        --output base16" << "\r\n"
-              << "            Print output data in base16 format" << "\r\n"
-              << "        -o b64" << "\r\n"
-              << "        -o base64" << "\r\n"
-              << "        --output b64" << "\r\n"
-              << "        --output base64" << "\r\n"
-              << "            Print output data in base64 format" << "\r\n"
-              << "        -o f filename" << "\r\n"
-              << "        -o file filename" << "\r\n"
-              << "        --output f filename" << "\r\n"
-              << "        --output file filename" << "\r\n"
-              << "            Write output data to specified file" << "\r\n"
-              << "    action:" << "\r\n"
-              << "        -e" << "\r\n"
-              << "        --encrypt" << "\r\n"
-              << "            Encrypt" << "\r\n"
-              << "        -d" << "\r\n"
-              << "        --decrypt" << "\r\n"
-              << "            Decrypt" << "\r\n"
-              << "    algorithm:" << "\r\n"
-              << "        -a algorithm_with_parameters" << "\r\n"
-              << "        --algorithm algorithm_with_parameters" << "\r\n"
-              << "Supported algorithms:" << "\r\n"
-              << "    AES: aes" << "\r\n"
-              << "        Requires:  key_size block_cipher_mode key iv" << "\r\n"
-              << "Parameters:" << "\r\n"
-              << "    key_size:" << "\r\n"
-              << "        -s size" << "\r\n"
-              << "        --key_size size" << "\r\n"
-              << "            size:" << "\r\n"
-              << "                128" << "\r\n"
-              << "                    128-bit key" << "\r\n"
-              << "                192" << "\r\n"
-              << "                    192-bit key" << "\r\n"
-              << "                256" << "\r\n"
-              << "                    256-bit key" << "\r\n"
-              << "    block_cipher_mode:" << "\r\n"
-              << "        -m mode" << "\r\n"
-              << "        --block_cipher_mode mode" << "\r\n"
-              << "            mode:" << "\r\n"
-              << "                cbc" << "\r\n"
-              << "                    Cipher block chaining" << "\r\n"
-              << "    key:" << "\r\n"
-              << "        -k b16 key_in_base16" << "\r\n"
-              << "        -k base16 key_in_base16" << "\r\n"
-              << "        --key b16 key_in_base16" << "\r\n"
-              << "        --key base16 key_in_base16" << "\r\n"
-              << "            Key provided in base16 format" << "\r\n"
-              << "        -k b64 key_in_base64" << "\r\n"
-              << "        -k base64 key_in_base64" << "\r\n"
-              << "        --key b64 key_in_base64" << "\r\n"
-              << "        --key base64 key_in_base64" << "\r\n"
-              << "            Key provided in base64 format" << "\r\n"
-              << "    iv:" << "\r\n"
-              << "        -v b16 iv_in_base16" << "\r\n"
-              << "        -v base16 iv_in_base16" << "\r\n"
-              << "        --iv b16 iv_in_base16" << "\r\n"
-              << "        --iv base16 iv_in_base16" << "\r\n"
-              << "            IV provided in base16 format" << "\r\n"
-              << "        -v b64 iv_in_base64" << "\r\n"
-              << "        -v base64 iv_in_base64" << "\r\n"
-              << "        --iv b64 iv_in_base64" << "\r\n"
-              << "        --iv base64 iv_in_base64" << "\r\n"
-              << "            IV provided in base64 format" << "\r\n"
-              << "\r\n";
+    std::cout << "\n"
+                 "Usage: encryptor input output action algorithm\n"
+                 "\n"
+                 "Options:\n"
+                 "    input:\n"
+                 "        -i b16 data_in_base16\n"
+                 "        -i base16 data_in_base16\n"
+                 "        --input b16 data_in_base16\n"
+                 "        --input base16 data_in_base16\n"
+                 "            Input data provided in base16 format\n"
+                 "        -i b64 data_in_base64\n"
+                 "        -i base64 data_in_base64\n"
+                 "        --input b64 data_in_base64\n"
+                 "        --input base64 data_in_base64\n"
+                 "            Input data provided in base64 format\n"
+                 "        -i f filename\n"
+                 "        -i file filename\n"
+                 "        --input f filename\n"
+                 "        --input file filename\n"
+                 "            Input data provided in specified file\n"
+                 "    output:\n"
+                 "        -o b16\n"
+                 "        -o base16\n"
+                 "        --output b16\n"
+                 "        --output base16\n"
+                 "            Print output data in base16 format\n"
+                 "        -o b64\n"
+                 "        -o base64\n"
+                 "        --output b64\n"
+                 "        --output base64\n"
+                 "            Print output data in base64 format\n"
+                 "        -o f filename\n"
+                 "        -o file filename\n"
+                 "        --output f filename\n"
+                 "        --output file filename\n"
+                 "            Write output data to specified file\n"
+                 "    action:\n"
+                 "        -e\n"
+                 "        --encrypt\n"
+                 "            Encrypt\n"
+                 "        -d\n"
+                 "        --decrypt\n"
+                 "            Decrypt\n"
+                 "    algorithm:\n"
+                 "        -a algorithm_with_parameters\n"
+                 "        --algorithm algorithm_with_parameters\n"
+                 "Supported algorithms:\n"
+                 "    AES: aes\n"
+                 "        Requires:  key_size block_cipher_mode key iv\n"
+                 "Parameters:\n"
+                 "    key_size:\n"
+                 "        -s size\n"
+                 "        --key_size size\n"
+                 "            size:\n"
+                 "                128\n"
+                 "                    128-bit key\n"
+                 "                192\n"
+                 "                    192-bit key\n"
+                 "                256\n"
+                 "                    256-bit key\n"
+                 "    block_cipher_mode:\n"
+                 "        -m mode\n"
+                 "        --block_cipher_mode mode\n"
+                 "            mode:\n"
+                 "                cbc\n"
+                 "                    Cipher block chaining\n"
+                 "    key:\n"
+                 "        -k b16 key_in_base16\n"
+                 "        -k base16 key_in_base16\n"
+                 "        --key b16 key_in_base16\n"
+                 "        --key base16 key_in_base16\n"
+                 "            Key provided in base16 format\n"
+                 "        -k b64 key_in_base64\n"
+                 "        -k base64 key_in_base64\n"
+                 "        --key b64 key_in_base64\n"
+                 "        --key base64 key_in_base64\n"
+                 "            Key provided in base64 format\n"
+                 "    iv:\n"
+                 "        -v b16 iv_in_base16\n"
+                 "        -v base16 iv_in_base16\n"
+                 "        --iv b16 iv_in_base16\n"
+                 "        --iv base16 iv_in_base16\n"
+                 "            IV provided in base16 format\n"
+                 "        -v b64 iv_in_base64\n"
+                 "        -v base64 iv_in_base64\n"
+                 "        --iv b64 iv_in_base64\n"
+                 "        --iv base64 iv_in_base64\n"
+                 "            IV provided in base64 format\n"
+                 "\n";
 }
 
 int parse_args(int argc, char** argv)
 {
-    //Program name
-    parameters.program_name = argv[0];
-    
     if (argc == 1)
         return 0;
     
@@ -180,7 +175,7 @@ int parse_args(int argc, char** argv)
                     parameters.input_type = "file";
                 else
                 {
-                    std::cerr << "Unsupported input type: '" << input_type << "'." << "\r\n";
+                    std::cerr << "Unsupported input type: '" << input_type << "'.\n";
                     return 1;
                 }
                 
@@ -188,13 +183,13 @@ int parse_args(int argc, char** argv)
                     parameters.input_data = input_data;
                 else
                 {
-                    std::cerr << "Input data empty." << "\r\n";
+                    std::cerr << "Input data empty.\n";
                     return 1;
                 }
             }
             else
             {
-                std::cerr << "Incomplete input argument." << "\r\n";
+                std::cerr << "Incomplete input argument.\n";
                 return 1;
             }
         }
@@ -220,25 +215,25 @@ int parse_args(int argc, char** argv)
                             parameters.output_data = output_data;
                         else
                         {
-                            std::cerr << "Output data empty." << "\r\n";
+                            std::cerr << "Output data empty.\n";
                             return 1;
                         }
                     }
                     else
                     {
-                        std::cerr << "Incomplete output argument." << "\r\n";
+                        std::cerr << "Incomplete output argument.\n";
                         return 1;
                     }
                 }
                 else
                 {
-                    std::cerr << "Unsupported output type: '" << output_type << "'." << "\r\n";
+                    std::cerr << "Unsupported output type: '" << output_type << "'.\n";
                     return 1;
                 }
             }
             else
             {
-                std::cerr << "Incomplete output argument." << "\r\n";
+                std::cerr << "Incomplete output argument.\n";
                 return 1;
             }
         }
@@ -256,13 +251,13 @@ int parse_args(int argc, char** argv)
                     parameters.algorithm = "aes";
                 else
                 {
-                    std::cerr << "Unsupported algorithm: '" << algorithm << "'." << "\r\n";
+                    std::cerr << "Unsupported algorithm: '" << algorithm << "'.\n";
                     return 1;
                 }
             }
             else
             {
-                std::cerr << "Incomplete algorithm argument." << "\r\n";
+                std::cerr << "Incomplete algorithm argument.\n";
                 return 1;
             }
         }
@@ -280,13 +275,13 @@ int parse_args(int argc, char** argv)
                     parameters.key_size = "256";
                 else
                 {
-                    std::cerr << "Unsupported key size: '" << key_size << "'." << "\r\n";
+                    std::cerr << "Unsupported key size: '" << key_size << "'.\n";
                     return 1;
                 }
             }
             else
             {
-                std::cerr << "Incomplete key size argument." << "\r\n";
+                std::cerr << "Incomplete key size argument.\n";
                 return 1;
             }
         }
@@ -300,14 +295,13 @@ int parse_args(int argc, char** argv)
                     parameters.block_cipher_mode = "cbc";
                 else
                 {
-                    std::cerr << "Unsupported block cipher mode: '" << block_cipher_mode << "'."
-                              << "\r\n";
+                    std::cerr << "Unsupported block cipher mode: '" << block_cipher_mode << "'.\n";
                     return 1;
                 }
             }
             else
             {
-                std::cerr << "Incomplete block cipher mode argument." << "\r\n";
+                std::cerr << "Incomplete block cipher mode argument.\n";
                 return 1;
             }
         }
@@ -324,7 +318,7 @@ int parse_args(int argc, char** argv)
                     parameters.key_type = "base64";
                 else
                 {
-                    std::cerr << "Unsupported key type: '" << key_type << "'." << "\r\n";
+                    std::cerr << "Unsupported key type: '" << key_type << "'.\n";
                     return 1;
                 }
                 
@@ -332,13 +326,13 @@ int parse_args(int argc, char** argv)
                     parameters.key_data = key_data;
                 else
                 {
-                    std::cerr << "Key data empty." << "\r\n";
+                    std::cerr << "Key data empty.\n";
                     return 1;
                 }
             }
             else
             {
-                std::cerr << "Incomplete key argument." << "\r\n";
+                std::cerr << "Incomplete key argument.\n";
                 return 1;
             }
         }
@@ -355,7 +349,7 @@ int parse_args(int argc, char** argv)
                     parameters.iv_type = "base64";
                 else
                 {
-                    std::cerr << "Unsupported IV type: '" << iv_type << "'." << "\r\n";
+                    std::cerr << "Unsupported IV type: '" << iv_type << "'.\n";
                     return 1;
                 }
                 
@@ -363,19 +357,19 @@ int parse_args(int argc, char** argv)
                     parameters.iv_data = iv_data;
                 else
                 {
-                    std::cerr << "IV data empty." << "\r\n";
+                    std::cerr << "IV data empty.\n";
                     return 1;
                 }
             }
             else
             {
-                std::cerr << "Incomplete IV argument." << "\r\n";
+                std::cerr << "Incomplete IV argument.\n";
                 return 1;
             }
         }
         else
         {
-            std::cerr << "Wrong argument: " << arg << "\r\n";
+            std::cerr << "Wrong argument: " << arg << "\n";
             return 1;
         }
     }
@@ -384,25 +378,25 @@ int parse_args(int argc, char** argv)
     
     if (!parameters.input_type.length() && !parameters.input_data.length())
     {
-        std::cerr << "Input not specified." << "\r\n";
+        std::cerr << "Input not specified.\n";
         return 1;
     }
     
     if (!parameters.output_type.length())
     {
-        std::cerr << "Output not specified." << "\r\n";
+        std::cerr << "Output not specified.\n";
         return 1;
     }
     
     if (!parameters.action.length())
     {
-        std::cerr << "Action not specified." << "\r\n";
+        std::cerr << "Action not specified.\n";
         return 1;
     }
     
     if (!parameters.algorithm.length())
     {
-        std::cerr << "Algorithm not specified." << "\r\n";
+        std::cerr << "Algorithm not specified.\n";
         return 1;
     }
     
@@ -410,22 +404,22 @@ int parse_args(int argc, char** argv)
     {
         if (!parameters.key_size.length())
         {
-            std::cerr << "AES requires key size." << "\r\n";
+            std::cerr << "AES requires key size.\n";
             return 1;
         }
         if (!parameters.block_cipher_mode.length())
         {
-            std::cerr << "AES requires block cipher mode." << "\r\n";
+            std::cerr << "AES requires block cipher mode.\n";
             return 1;
         }
         if (!parameters.key_type.length() && !parameters.key_data.length())
         {
-            std::cerr << "AES requires key." << "\r\n";
+            std::cerr << "AES requires key.\n";
             return 1;
         }
         if (!parameters.iv_type.length() && !parameters.iv_data.length())
         {
-            std::cerr << "AES requires IV." << "\r\n";
+            std::cerr << "AES requires IV.\n";
             return 1;
         }
     }
@@ -483,7 +477,7 @@ int run_action()
         if (!key || aes->set_key(key))
         {
             delete key;
-            std::cerr << "Invalid key." << "\r\n";
+            std::cerr << "Invalid key.\n";
             return 1;
         }
         delete key;
@@ -503,7 +497,7 @@ int run_action()
         if (!iv || aes->set_IV(iv))
         {
             delete iv;
-            std::cerr << "Invalid IV." << "\r\n";
+            std::cerr << "Invalid IV.\n";
             return 1;
         }
         

@@ -8,6 +8,6 @@ void illegal_state_handler(std::string file, int line)
                     std::string(file) + \
                     std::string(", line ") + \
                     std::to_string(line) + \
-                    "\r\n";
+                    "\n";
     std::exit(1);
 }
