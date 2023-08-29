@@ -540,29 +540,27 @@ void AES::KeyExpansion(Array* K)
 void AES::MixColumns(Array* state)
 {
     //Create the temporary state
-    Array* temp_state = new Array(STATE_SIZE);
+    Array* t = new Array(STATE_SIZE);
 
     //Mix each column
     for (uint8_t i = 0; i < Nb; i++)
     {
-        temp_state->data[i + 0 * Nb] = multiply_gf(0x02, state->data[i + 0 * Nb]) ^
-                                       multiply_gf(0x03, state->data[i + 1 * Nb]) ^
-                                       state->data[i + 2 * Nb] ^ state->data[i + 3 * Nb];
-        temp_state->data[i + 1 * Nb] =
-            state->data[i + 0 * Nb] ^ multiply_gf(0x02, state->data[i + 1 * Nb]) ^
-            multiply_gf(0x03, state->data[i + 2 * Nb]) ^ state->data[i + 3 * Nb];
-        temp_state->data[i + 2 * Nb] = state->data[i + 0 * Nb] ^ state->data[i + 1 * Nb] ^
-                                       multiply_gf(0x02, state->data[i + 2 * Nb]) ^
-                                       multiply_gf(0x03, state->data[i + 3 * Nb]);
-        temp_state->data[i + 3 * Nb] = multiply_gf(0x03, state->data[i + 0 * Nb]) ^
-                                       state->data[i + 1 * Nb] ^ state->data[i + 2 * Nb] ^
-                                       multiply_gf(0x02, state->data[i + 3 * Nb]);
+        t->data[i + 0 * Nb] = multiply_gf(0x02, state->data[i + 0 * Nb]) ^
+                              multiply_gf(0x03, state->data[i + 1 * Nb]) ^ state->data[i + 2 * Nb] ^
+                              state->data[i + 3 * Nb];
+        t->data[i + 1 * Nb] = state->data[i + 0 * Nb] ^ multiply_gf(0x02, state->data[i + 1 * Nb]) ^
+                              multiply_gf(0x03, state->data[i + 2 * Nb]) ^ state->data[i + 3 * Nb];
+        t->data[i + 2 * Nb] = state->data[i + 0 * Nb] ^ state->data[i + 1 * Nb] ^
+                              multiply_gf(0x02, state->data[i + 2 * Nb]) ^
+                              multiply_gf(0x03, state->data[i + 3 * Nb]);
+        t->data[i + 3 * Nb] = multiply_gf(0x03, state->data[i + 0 * Nb]) ^ state->data[i + 1 * Nb] ^
+                              state->data[i + 2 * Nb] ^ multiply_gf(0x02, state->data[i + 3 * Nb]);
     }
 
     //Copy temporary state to state
-    std::copy(&temp_state->data[0], &temp_state->data[STATE_SIZE], state->data);
+    std::copy(&t->data[0], &t->data[STATE_SIZE], state->data);
 
-    delete temp_state;
+    delete t;
 }
 
 void AES::RotWord(Array* word)
