@@ -13,7 +13,7 @@ Array::Array(uint64_t size)
     _size = size;
 }
 
-Array::Array(Array &a)
+Array::Array(Array& a)
 {
     _size = a.size();
     data = new uint8_t[_size];
@@ -25,4 +25,3 @@ Array::~Array()
 {
     delete[] data;
 }
-

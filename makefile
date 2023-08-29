@@ -36,4 +36,3 @@ clean:
 
 cleaner: | clean
 	@if [ -d ./$(OBJ_DIR) ]; then echo Cleaning $(OBJ_DIR); rm -f $(OBJ_DIR)/*; fi
-

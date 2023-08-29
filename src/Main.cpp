@@ -1,9 +1,9 @@
 #include "Main.h"
 
-#include "Base64.h"
-#include "Base16.h"
-#include "Array.h"
 #include "AES.h"
+#include "Array.h"
+#include "Base16.h"
+#include "Base64.h"
 #include "error_handler.h"
 
 #include <iostream>
@@ -11,23 +11,23 @@
 struct
 {
     bool help = false;
-    
+
     std::string input_type;
     std::string input_data;
-    
+
     std::string output_type;
     std::string output_data;
-    
+
     std::string action;
-    
+
     std::string algorithm;
-    
+
     std::string key_size;
     std::string block_cipher_mode;
-    
+
     std::string key_type;
     std::string key_data;
-    
+
     std::string iv_type;
     std::string iv_data;
 } parameters;
@@ -40,14 +40,14 @@ int main(int argc, char** argv)
         std::cerr << "An error occured during command line argument parsing.\n";
         return 1;
     }
-    
+
     //Display help
     if (argc == 1 || parameters.help)
     {
         display_help();
         return 0;
     }
-    
+
     //Run action and exit program
     return run_action();
 }
@@ -149,12 +149,12 @@ int parse_args(int argc, char** argv)
 {
     if (argc == 1)
         return 0;
-    
+
     //Parse arguments
     for (int i = 1; i < argc; i++)
     {
         std::string arg(argv[i]);
-        
+
         if (arg == "-h" || arg == "--help")
         {
             parameters.help = true;
@@ -166,7 +166,7 @@ int parse_args(int argc, char** argv)
             {
                 std::string input_type(argv[++i]);
                 std::string input_data(argv[++i]);
-                
+
                 if (input_type == "b16" || input_type == "base16")
                     parameters.input_type = "base16";
                 else if (input_type == "b64" || input_type == "base64")
@@ -178,7 +178,7 @@ int parse_args(int argc, char** argv)
                     std::cerr << "Unsupported input type: '" << input_type << "'.\n";
                     return 1;
                 }
-                
+
                 if (input_data.length())
                     parameters.input_data = input_data;
                 else
@@ -198,7 +198,7 @@ int parse_args(int argc, char** argv)
             if (check_if_enough_parameters_available(argc, i, 1))
             {
                 std::string output_type(argv[++i]);
-                
+
                 if (output_type == "b16" || output_type == "base16")
                     parameters.output_type = "base16";
                 else if (output_type == "b64" || output_type == "base64")
@@ -208,9 +208,9 @@ int parse_args(int argc, char** argv)
                     if (check_if_enough_parameters_available(argc, i, 1))
                     {
                         std::string output_data(argv[++i]);
-                        
+
                         parameters.output_type = "file";
-                        
+
                         if (output_data.length())
                             parameters.output_data = output_data;
                         else
@@ -246,7 +246,7 @@ int parse_args(int argc, char** argv)
             if (check_if_enough_parameters_available(argc, i, 1))
             {
                 std::string algorithm(argv[++i]);
-                
+
                 if (algorithm == "aes")
                     parameters.algorithm = "aes";
                 else
@@ -266,7 +266,7 @@ int parse_args(int argc, char** argv)
             if (check_if_enough_parameters_available(argc, i, 1))
             {
                 std::string key_size(argv[++i]);
-                
+
                 if (key_size == "128")
                     parameters.key_size = "128";
                 else if (key_size == "192")
@@ -290,7 +290,7 @@ int parse_args(int argc, char** argv)
             if (check_if_enough_parameters_available(argc, i, 1))
             {
                 std::string block_cipher_mode(argv[++i]);
-                
+
                 if (block_cipher_mode == "cbc")
                     parameters.block_cipher_mode = "cbc";
                 else
@@ -311,7 +311,7 @@ int parse_args(int argc, char** argv)
             {
                 std::string key_type(argv[++i]);
                 std::string key_data(argv[++i]);
-                
+
                 if (key_type == "b16" || key_type == "base16")
                     parameters.key_type = "base16";
                 else if (key_type == "b64" || key_type == "base64")
@@ -321,7 +321,7 @@ int parse_args(int argc, char** argv)
                     std::cerr << "Unsupported key type: '" << key_type << "'.\n";
                     return 1;
                 }
-                
+
                 if (key_data.length())
                     parameters.key_data = key_data;
                 else
@@ -342,7 +342,7 @@ int parse_args(int argc, char** argv)
             {
                 std::string iv_type(argv[++i]);
                 std::string iv_data(argv[++i]);
-                
+
                 if (iv_type == "b16" || iv_type == "base16")
                     parameters.iv_type = "base16";
                 else if (iv_type == "b64" || iv_type == "base64")
@@ -352,7 +352,7 @@ int parse_args(int argc, char** argv)
                     std::cerr << "Unsupported IV type: '" << iv_type << "'.\n";
                     return 1;
                 }
-                
+
                 if (iv_data.length())
                     parameters.iv_data = iv_data;
                 else
@@ -373,33 +373,33 @@ int parse_args(int argc, char** argv)
             return 1;
         }
     }
-    
+
     //Check requirements
-    
+
     if (!parameters.input_type.length() && !parameters.input_data.length())
     {
         std::cerr << "Input not specified.\n";
         return 1;
     }
-    
+
     if (!parameters.output_type.length())
     {
         std::cerr << "Output not specified.\n";
         return 1;
     }
-    
+
     if (!parameters.action.length())
     {
         std::cerr << "Action not specified.\n";
         return 1;
     }
-    
+
     if (!parameters.algorithm.length())
     {
         std::cerr << "Algorithm not specified.\n";
         return 1;
     }
-    
+
     if (parameters.algorithm == "aes")
     {
         if (!parameters.key_size.length())
@@ -423,19 +423,19 @@ int parse_args(int argc, char** argv)
             return 1;
         }
     }
-    
+
     if (parameters.input_type == "file" && parameters.output_type != "file")
     {
         std::cerr << "File input requires file output.";
         return 1;
     }
-    
+
     if (parameters.output_type == "file" && parameters.input_type != "file")
     {
         std::cerr << "File output requires file input.";
         return 1;
     }
-    
+
     return 0;
 }
 
@@ -449,7 +449,7 @@ int run_action()
     if (parameters.algorithm == "aes")
     {
         AES* aes = NULL;
-        
+
         if (parameters.key_size == "128")
             aes = new AES(AES::key_length::AES128);
         else if (parameters.key_size == "192")
@@ -461,9 +461,9 @@ int run_action()
             //This should not happen
             illegal_state_handler(__FILE__, __LINE__);
         }
-        
+
         Array* key = NULL;
-        
+
         if (parameters.key_type == "base16")
             key = Base16::base16_to_data((char*)parameters.key_data.c_str());
         else if (parameters.key_type == "base64")
@@ -473,7 +473,7 @@ int run_action()
             //This should not happen
             illegal_state_handler(__FILE__, __LINE__);
         }
-        
+
         if (!key || aes->set_key(key))
         {
             delete key;
@@ -481,9 +481,9 @@ int run_action()
             return 1;
         }
         delete key;
-        
+
         Array* iv = NULL;
-        
+
         if (parameters.iv_type == "base16")
             iv = Base16::base16_to_data((char*)parameters.iv_data.c_str());
         else if (parameters.iv_type == "base64")
@@ -493,17 +493,17 @@ int run_action()
             //This should not happen
             illegal_state_handler(__FILE__, __LINE__);
         }
-        
+
         if (!iv || aes->set_IV(iv))
         {
             delete iv;
             std::cerr << "Invalid IV.\n";
             return 1;
         }
-        
+
         Array* data = NULL;
         Array* processed_data = NULL;
-        
+
         if (parameters.input_type == "base16")
             data = Base16::base16_to_data((char*)parameters.input_data.c_str());
         else if (parameters.input_type == "base64")
@@ -517,7 +517,7 @@ int run_action()
             //This should not happen
             illegal_state_handler(__FILE__, __LINE__);
         }
-        
+
         if (parameters.block_cipher_mode == "cbc")
         {
             if (parameters.action == "encrypt")
@@ -545,7 +545,7 @@ int run_action()
             //This should not happen
             illegal_state_handler(__FILE__, __LINE__);
         }
-        
+
         if (parameters.output_type == "base16")
             std::cout << Base16::data_to_base16(processed_data);
         else if (parameters.output_type == "base64")
@@ -559,7 +559,7 @@ int run_action()
             //This should not happen
             illegal_state_handler(__FILE__, __LINE__);
         }
-        
+
         delete processed_data;
         delete data;
         delete aes;
@@ -569,6 +569,6 @@ int run_action()
         //This should not happen
         illegal_state_handler(__FILE__, __LINE__);
     }
-    
+
     return 0;
 }

@@ -6,11 +6,11 @@ class Array
 {
 public:
     uint8_t* data;
-    
+
     uint64_t size();
-    
+
     Array(uint64_t size);
-    Array(Array &a);
+    Array(Array& a);
     ~Array();
 
 private:

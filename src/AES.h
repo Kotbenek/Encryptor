@@ -14,10 +14,10 @@ public:
         AES192,
         AES256
     };
-    
+
     AES(key_length len);
     ~AES();
-    
+
     uint8_t set_key(Array* K);
     uint8_t set_IV(Array* iv);
 
@@ -37,7 +37,7 @@ private:
     uint8_t Nr;
     //Initialization vector
     Array* IV;
-    
+
     //Number of columns (32-bit words) comprising the State
     static const uint8_t Nb = 4;
     //Number of rows comprising the State
@@ -50,12 +50,12 @@ private:
     static const uint8_t Sbox[];
     //Inverse substitution table
     static const uint8_t Inv_Sbox[];
-    
+
     static const uint32_t FILE_BUFFER_SIZE = 256 * 4 * Nb;
-    
+
     bool key_set;
     bool iv_set;
-    
+
     void AddRoundKey(Array* state, uint8_t round_number);
     void Cipher(Array* data);
     void InvCipher(Array* data);
