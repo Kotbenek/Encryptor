@@ -3,6 +3,7 @@
 #include "Array.h"
 
 #include <cstddef>
+#include <cstring>
 
 const char* Base64::data_to_base64(Array* array)
 {
@@ -57,10 +58,7 @@ const char* Base64::data_to_base64(Array* array)
 Array* Base64::base64_to_data(char* base64)
 {
     //Calculate base64 length
-    uint64_t base64_length = 0;
-    while (base64[base64_length++])
-        ;
-    base64_length--;
+    uint64_t base64_length = strlen(base64);
 
     //Don't process invalid data
     if (base64_length % 4)

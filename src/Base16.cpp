@@ -3,6 +3,7 @@
 #include "Array.h"
 
 #include <cstddef>
+#include <cstring>
 
 const char* Base16::data_to_base16(Array* array)
 {
@@ -31,10 +32,7 @@ const char* Base16::data_to_base16(Array* array)
 Array* Base16::base16_to_data(char* base16)
 {
     //Calculate base16_length
-    uint64_t base16_length = 0;
-    while (base16[base16_length++])
-        ;
-    base16_length--;
+    uint64_t base16_length = strlen(base16);
 
     //Don't process invalid data
     if (base16_length % 2)
