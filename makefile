@@ -35,7 +35,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(DEP_DIR)/%.d | $(DEP_DIR)
 	@$(CXX) $< -o $@ -c $(LIB) $(PARAMETERS) $(OPT_LEVEL) $(DEP_FLAGS)
 
 build: $(OBJ_FILES) | $(BIN_DIR)
-	@echo Creating bin/$(APP_NAME)
+	@echo Linking $(BIN_DIR)/$(APP_NAME)
 	@$(CXX) -o $(BIN_DIR)/$(APP_NAME) $(OBJ_FILES) $(LIB) $(PARAMETERS) $(OPT_LEVEL)
 
 clean:
