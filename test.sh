@@ -75,22 +75,22 @@ test_encrypt_decrypt_aes_data()
     local ENCRYPTED_DATA
     local DECRYPTED_DATA
 
-    ENCRYPTED_DATA=$(./bin/encryptor "-i" "$1" "$2" "-o" "$3" "-e" "-a" "aes" "-s" "$4" "-m" "$5" "-k" "$6" "$7" "-v" "$8" "$9")
+    ENCRYPTED_DATA=$(./bin/encryptor "--input_data_type" "$1" "--input" "$2" "--output_data_type" "$3" "--encrypt" "--algorithm" "aes$4" "--block_cipher_mode" "$5" "--key_data_type" "$6" "--key" "$7" "--iv_data_type" "$8" "--iv" "$9")
 
     if assert_not_sigsegv; then
-        DECRYPTED_DATA=$(./bin/encryptor "-i" "$3" "${ENCRYPTED_DATA}" "-o" "$1" "-d" "-a" "aes" "-s" "$4" "-m" "$5" "-k" "$6" "$7" "-v" "$8" "$9")
+        DECRYPTED_DATA=$(./bin/encryptor "--input_data_type" "$3" "--input" "${ENCRYPTED_DATA}" "--output_data_type" "$1" "--decrypt" "--algorithm" "aes$4" "--block_cipher_mode" "$5" "--key_data_type" "$6" "--key" "$7" "--iv_data_type" "$8" "--iv" "$9")
 
         if assert_not_sigsegv; then
             assert_equal "$2" "${DECRYPTED_DATA}"
         else
-            echo "./bin/encryptor -i $3 ${ENCRYPTED_DATA} -o $1 -d -a aes -s $4 -m $5 -k $6 $7 -v $8 $9"
+            echo "./bin/encryptor --input_data_type $3 --input ${ENCRYPTED_DATA} --output_data_type $1 --decrypt --algorithm aes$4 --block_cipher_mode $5 --key_data_type $6 --key $7 --iv_data_type $8 --iv $9"
         fi
     else
-        echo "./bin/encryptor -i $1 $2 -o $3 -e -a aes -s $4 -m $5 -k $6 $7 -v $8 $9"
+        echo "./bin/encryptor --input_data_type $1 --input $2 --output_data_type $3 --encrypt --algorithm aes$4 --block_cipher_mode $5 --key_data_type $6 --key $7 --iv_data_type $8 --iv $9"
     fi
 }
 
-DATA_INPUT_TYPES=("b16" "b64")
+DATA_INPUT_TYPES=("base16" "base64")
 AES_SIZES=("128" "192" "256")
 
 for aes_size in "${AES_SIZES[@]}"; do
@@ -100,13 +100,13 @@ for aes_size in "${AES_SIZES[@]}"; do
                 for iv_type in "${DATA_INPUT_TYPES[@]}"; do
                     print_test_init "data, input ${input_type}, output ${output_type}, AES${aes_size}, CBC, key ${key_type}, IV ${iv_type}"
 
-                    if [ "${input_type}" == "b16" ]; then
+                    if [ "${input_type}" == "base16" ]; then
                         INPUT="6BC1BEE22E409F96E93D7E117393172A"
                     else
                         INPUT="a8G+4i5An5bpPX4Rc5MXKg=="
                     fi
 
-                    if [ "${key_type}" == "b16" ]; then
+                    if [ "${key_type}" == "base16" ]; then
                         if [ "${aes_size}" == "128" ]; then
                             KEY="2B7E151628AED2A6ABF7158809CF4F3C"
                         elif [ "${aes_size}" == "192" ]; then
@@ -124,7 +124,7 @@ for aes_size in "${AES_SIZES[@]}"; do
                         fi
                     fi
 
-                    if [ "${iv_type}" == "b16" ]; then
+                    if [ "${iv_type}" == "base16" ]; then
                         IV="000102030405060708090A0B0C0D0E0F"
                     else
                         IV="AAECAwQFBgcICQoLDA0ODw=="

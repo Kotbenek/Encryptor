@@ -1,11 +1,12 @@
 #pragma once
 
 #include "Array.h"
+#include "EncryptionAlgorithm.h"
 
 #include <cstdint>
 #include <string>
 
-class AES
+class AES : public EncryptionAlgorithm
 {
 public:
     enum class key_length
