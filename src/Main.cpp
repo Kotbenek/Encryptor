@@ -206,15 +206,17 @@ int main(int argc, char** argv)
         return 0;
 
     //Print output data
-    std::unique_ptr<char> data_to_print;
+    std::unique_ptr<char[]> data_to_print;
     switch (parameters.output_data_type)
     {
         case data_type::base16:
-            data_to_print = std::unique_ptr<char>((char*)Base16::data_to_base16(output_data.get()));
+            data_to_print =
+                std::unique_ptr<char[]>((char*)Base16::data_to_base16(output_data.get()));
             std::cout << data_to_print.get();
             break;
         case data_type::base64:
-            data_to_print = std::unique_ptr<char>((char*)Base64::data_to_base64(output_data.get()));
+            data_to_print =
+                std::unique_ptr<char[]>((char*)Base64::data_to_base64(output_data.get()));
             std::cout << data_to_print.get();
             break;
         default:
