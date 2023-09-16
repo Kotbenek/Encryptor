@@ -241,7 +241,7 @@ void display_help()
                  "    --input (<data> | <filename>)\n"
                  "  Output:\n"
                  "    --output_data_type <data_type>\n"
-                 "    --output (<data> | <filename>)\n"
+                 "    --output <filename>\n"
                  "  Algorithm:\n"
                  "    --algorithm <algorithm>\n"
                  "  Key:\n"
