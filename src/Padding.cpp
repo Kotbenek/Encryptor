@@ -18,6 +18,8 @@ namespace Padding
     bool PKCS7::check(Array* data)
     {
         uint8_t padding_value = data->data[data->size() - 1];
+        if (padding_value > data->size())
+            return false;
         for (uint64_t i = data->size() - padding_value; i < data->size(); i++)
             if (data->data[i] != padding_value)
                 return false;
