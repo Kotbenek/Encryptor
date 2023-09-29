@@ -29,6 +29,8 @@ public:
     uint8_t encrypt_CBC(Array* data);
     uint8_t decrypt_CBC(Array* data);
 
+    uint8_t get_required_input_alignment();
+
 private:
     //Round key
     Array* Round_Key;

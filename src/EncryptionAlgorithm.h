@@ -44,6 +44,24 @@ public:
         std::exit(1);
     }
 
+    virtual uint8_t encrypt_CBC(Array* data)
+    {
+        not_implemented();
+        std::exit(1);
+    }
+
+    virtual uint8_t decrypt_CBC(Array* data)
+    {
+        not_implemented();
+        std::exit(1);
+    }
+
+    virtual uint8_t get_required_input_alignment()
+    {
+        not_implemented();
+        std::exit(1);
+    }
+
     virtual ~EncryptionAlgorithm() {}
 
 private:

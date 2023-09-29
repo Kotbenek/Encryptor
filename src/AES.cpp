@@ -357,6 +357,13 @@ uint8_t AES::decrypt_CBC(Array* data)
     return 0;
 }
 
+uint8_t AES::get_required_input_alignment()
+{
+    //For now, the only implemented block cipher mode is CBC, which requires padding equal to
+    //state size
+    return STATE_SIZE;
+}
+
 const uint8_t AES::Rcon[] = {0x8D, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36};
 
 const uint8_t AES::Sbox[] = {

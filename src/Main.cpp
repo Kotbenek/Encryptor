@@ -5,6 +5,7 @@
 #include "Base16.h"
 #include "Base64.h"
 #include "EncryptionAlgorithm.h"
+#include "Padding.h"
 
 #include <getopt.h>
 #include <iostream>
@@ -180,15 +181,27 @@ int main(int argc, char** argv)
                     if (parameters.input_data_type == data_type::file)
                         algorithm->encrypt_file_CBC_PKCS7(parameters.input, parameters.output);
                     else
-                        output_data =
-                            std::unique_ptr<Array>(algorithm->encrypt_CBC_PKCS7(input_data.get()));
+                    {
+                        Padding::PKCS7::append(input_data.get(),
+                                               algorithm->get_required_input_alignment());
+                        algorithm->encrypt_CBC(input_data.get());
+                        output_data = std::move(input_data);
+                    }
                     break;
                 case action::decrypt:
                     if (parameters.input_data_type == data_type::file)
                         algorithm->decrypt_file_CBC_PKCS7(parameters.input, parameters.output);
                     else
-                        output_data =
-                            std::unique_ptr<Array>(algorithm->decrypt_CBC_PKCS7(input_data.get()));
+                    {
+                        algorithm->decrypt_CBC(input_data.get());
+                        if (!Padding::PKCS7::check(input_data.get()))
+                        {
+                            std::cerr << "Padding corrupted - decryption not successful.\n";
+                            return 1;
+                        }
+                        Padding::PKCS7::remove(input_data.get());
+                        output_data = std::move(input_data);
+                    }
                     break;
                 default:
                     std::cerr << "Invalid or missing action.\n";
