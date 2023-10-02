@@ -2,6 +2,7 @@
 
 #include "Array.h"
 #include "EncryptionAlgorithm.h"
+#include "block_cipher_mode.h"
 
 #include <cstdint>
 #include <string>
@@ -21,13 +22,14 @@ public:
 
     uint8_t set_key(Array* K);
     uint8_t set_IV(Array* iv);
+    uint8_t set_block_cipher_mode(int block_cipher_mode);
 
+    uint8_t encrypt(Array* data);
+    uint8_t decrypt(Array* data);
+
+    //TODO: rewrite file handling logic to not have fstream operations in this class
     uint8_t encrypt_file_CBC_PKCS7(std::string file_in, std::string file_out);
     uint8_t decrypt_file_CBC_PKCS7(std::string file_in, std::string file_out);
-    Array* encrypt_CBC_PKCS7(Array* data);
-    Array* decrypt_CBC_PKCS7(Array* data);
-    uint8_t encrypt_CBC(Array* data);
-    uint8_t decrypt_CBC(Array* data);
 
     uint8_t get_required_input_alignment();
 
@@ -73,4 +75,13 @@ private:
     void SubWord(Array* word);
     uint8_t multiply_gf(uint8_t a, uint8_t b);
     uint8_t xtime(uint8_t b);
+
+    void __encrypt(Array* data, Array* state, uint64_t data_index);
+    void __decrypt(Array* data, Array* state, uint64_t data_index);
+
+    uint8_t (AES::*__encrypt_block_cipher_mode)(Array* data) = NULL;
+    uint8_t (AES::*__decrypt_block_cipher_mode)(Array* data) = NULL;
+
+    uint8_t __encrypt_CBC(Array* data);
+    uint8_t __decrypt_CBC(Array* data);
 };

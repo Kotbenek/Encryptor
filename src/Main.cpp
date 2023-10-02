@@ -170,46 +170,42 @@ int main(int argc, char** argv)
     //TODO: Move things like block_cipher_mode to separate functions to avoid having functions named
     //like encrypt_file_CBC_PKCS7 that results in awkward calling convention that can be seen below
 
-    std::unique_ptr<Array> output_data;
-
-    switch (parameters.block_cipher_mode)
+    if (algorithm->set_block_cipher_mode(parameters.block_cipher_mode))
     {
-        case block_cipher_mode::CBC:
-            switch (parameters.action)
+        std::cerr << "Invalid or missing block cipher mode.\n";
+        return 1;
+    }
+
+    std::unique_ptr<Array> output_data;
+    switch (parameters.action)
+    {
+        case action::encrypt:
+            if (parameters.input_data_type == data_type::file)
+                algorithm->encrypt_file_CBC_PKCS7(parameters.input, parameters.output);
+            else
             {
-                case action::encrypt:
-                    if (parameters.input_data_type == data_type::file)
-                        algorithm->encrypt_file_CBC_PKCS7(parameters.input, parameters.output);
-                    else
-                    {
-                        Padding::PKCS7::append(input_data.get(),
-                                               algorithm->get_required_input_alignment());
-                        algorithm->encrypt_CBC(input_data.get());
-                        output_data = std::move(input_data);
-                    }
-                    break;
-                case action::decrypt:
-                    if (parameters.input_data_type == data_type::file)
-                        algorithm->decrypt_file_CBC_PKCS7(parameters.input, parameters.output);
-                    else
-                    {
-                        algorithm->decrypt_CBC(input_data.get());
-                        if (!Padding::PKCS7::check(input_data.get()))
-                        {
-                            std::cerr << "Padding corrupted - decryption not successful.\n";
-                            return 1;
-                        }
-                        Padding::PKCS7::remove(input_data.get());
-                        output_data = std::move(input_data);
-                    }
-                    break;
-                default:
-                    std::cerr << "Invalid or missing action.\n";
+                Padding::PKCS7::append(input_data.get(), algorithm->get_required_input_alignment());
+                algorithm->encrypt(input_data.get());
+                output_data = std::move(input_data);
+            }
+            break;
+        case action::decrypt:
+            if (parameters.input_data_type == data_type::file)
+                algorithm->decrypt_file_CBC_PKCS7(parameters.input, parameters.output);
+            else
+            {
+                algorithm->decrypt(input_data.get());
+                if (!Padding::PKCS7::check(input_data.get()))
+                {
+                    std::cerr << "Padding corrupted - decryption not successful.\n";
                     return 1;
+                }
+                Padding::PKCS7::remove(input_data.get());
+                output_data = std::move(input_data);
             }
             break;
         default:
-            std::cerr << "Invalid or missing block cipher mode.\n";
+            std::cerr << "Invalid or missing action.\n";
             return 1;
     }
 

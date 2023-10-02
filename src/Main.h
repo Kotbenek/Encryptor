@@ -1,5 +1,7 @@
 #pragma once
 
+#include "block_cipher_mode.h"
+
 #include <string>
 #include <unordered_map>
 
@@ -60,19 +62,6 @@ namespace data_type
         {"file",   data_type::file  }
     };
 } //namespace data_type
-
-namespace block_cipher_mode
-{
-    enum block_cipher_mode
-    {
-        not_set,
-        CBC
-    };
-
-    static std::unordered_map<std::string, block_cipher_mode> const get_from_string = {
-        {"cbc", block_cipher_mode::CBC}
-    };
-} //namespace block_cipher_mode
 
 namespace algorithm
 {

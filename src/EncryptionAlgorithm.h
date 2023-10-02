@@ -20,6 +20,12 @@ public:
         std::exit(1);
     }
 
+    virtual uint8_t set_block_cipher_mode(int block_cipher_mode)
+    {
+        not_implemented();
+        std::exit(1);
+    }
+
     virtual uint8_t encrypt_file_CBC_PKCS7(std::string file_in, std::string file_out)
     {
         not_implemented();
@@ -32,25 +38,13 @@ public:
         std::exit(1);
     }
 
-    virtual Array* encrypt_CBC_PKCS7(Array* data)
+    virtual uint8_t encrypt(Array* data)
     {
         not_implemented();
         std::exit(1);
     }
 
-    virtual Array* decrypt_CBC_PKCS7(Array* data)
-    {
-        not_implemented();
-        std::exit(1);
-    }
-
-    virtual uint8_t encrypt_CBC(Array* data)
-    {
-        not_implemented();
-        std::exit(1);
-    }
-
-    virtual uint8_t decrypt_CBC(Array* data)
+    virtual uint8_t decrypt(Array* data)
     {
         not_implemented();
         std::exit(1);

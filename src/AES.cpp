@@ -1,5 +1,7 @@
 #include "AES.h"
 
+#include "Padding.h"
+
 #include <algorithm>
 #include <cstdio>
 #include <fstream>
@@ -67,6 +69,29 @@ uint8_t AES::set_IV(Array* iv)
     return 0;
 }
 
+uint8_t AES::set_block_cipher_mode(int block_cipher_mode)
+{
+    switch (block_cipher_mode)
+    {
+        case block_cipher_mode::CBC:
+            __encrypt_block_cipher_mode = &AES::__encrypt_CBC;
+            __decrypt_block_cipher_mode = &AES::__decrypt_CBC;
+            return 0;
+        default:
+            return 1;
+    }
+}
+
+uint8_t AES::encrypt(Array* data)
+{
+    return (this->*__encrypt_block_cipher_mode)(data);
+}
+
+uint8_t AES::decrypt(Array* data)
+{
+    return (this->*__decrypt_block_cipher_mode)(data);
+}
+
 uint8_t AES::encrypt_file_CBC_PKCS7(std::string file_in, std::string file_out)
 {
     //Prepare input and output streams
@@ -83,7 +108,7 @@ uint8_t AES::encrypt_file_CBC_PKCS7(std::string file_in, std::string file_out)
     while (!(buffer->size() - fs_in.gcount()))
     {
         //Encrypt the buffer
-        encrypt_CBC(buffer);
+        __encrypt_CBC(buffer);
 
         //Write the encrypted buffer to the output file
         fs_out.write((char*)buffer->data, buffer->size());
@@ -98,12 +123,13 @@ uint8_t AES::encrypt_file_CBC_PKCS7(std::string file_in, std::string file_out)
     delete buffer;
 
     //Encrypt the buffer
-    buffer = encrypt_CBC_PKCS7(last_buffer);
+    Padding::PKCS7::append(last_buffer, get_required_input_alignment());
+    __encrypt_CBC(last_buffer);
+    buffer = last_buffer;
 
     //Write the encrypted buffer to the output file
     fs_out.write((char*)buffer->data, buffer->size());
 
-    delete last_buffer;
     delete buffer;
 
     return 0;
@@ -129,7 +155,7 @@ uint8_t AES::decrypt_file_CBC_PKCS7(std::string file_in, std::string file_out)
     while (!input_stream_reached_EOF)
     {
         //Decrypt the buffer
-        decrypt_CBC(buffer);
+        __decrypt_CBC(buffer);
 
         //Write the decrypted buffer to the output file
         fs_out.write((char*)buffer->data, buffer->size());
@@ -147,11 +173,8 @@ uint8_t AES::decrypt_file_CBC_PKCS7(std::string file_in, std::string file_out)
     delete buffer;
 
     //Decrypt the buffer
-    buffer = decrypt_CBC_PKCS7(last_buffer);
-
-    delete last_buffer;
-
-    if (buffer == NULL)
+    __decrypt_CBC(last_buffer);
+    if (!Padding::PKCS7::check(last_buffer))
     {
         //Padding corrupted - decryption not successful
 
@@ -161,198 +184,18 @@ uint8_t AES::decrypt_file_CBC_PKCS7(std::string file_in, std::string file_out)
         //Remove output file
         remove(file_out.c_str());
 
+        delete last_buffer;
+
         return 1;
     }
-    else
-    {
-        //Write the decrypted buffer to the output file
-        fs_out.write((char*)buffer->data, buffer->size());
 
-        delete buffer;
+    Padding::PKCS7::remove(last_buffer);
+    buffer = last_buffer;
 
-        return 0;
-    }
-}
-
-Array* AES::encrypt_CBC_PKCS7(Array* data)
-{
-    if (!key_set)
-        return NULL;
-    if (!iv_set)
-        return NULL;
-
-    if (data->size() == 0)
-    {
-        Array* padding_data = new Array(STATE_SIZE);
-        for (uint8_t i = 0; i < padding_data->size(); i++)
-            padding_data->data[i] = padding_data->size();
-
-        encrypt_CBC(padding_data);
-        return padding_data;
-    }
-
-    Array* encrypted_data = new Array(data->size() + (STATE_SIZE - data->size() % STATE_SIZE));
-
-    //Buffer size for N-1 AES data blocks
-    uint64_t buffer_size = data->size() - data->size() % STATE_SIZE;
-
-    Array* buffer;
-
-    //If there is at least one full AES data block
-    if (data->size() >= STATE_SIZE)
-    {
-        //Encrypt N-1 AES data blocks
-        buffer = new Array(buffer_size);
-
-        std::copy(&data->data[0], &data->data[buffer_size], buffer->data);
-        encrypt_CBC(buffer);
-        std::copy(&buffer->data[0], &buffer->data[buffer_size], encrypted_data->data);
-
-        delete buffer;
-    }
-
-    //Add PKCS#7 padding and encrypt last AES data block
-    buffer = new Array(STATE_SIZE);
-
-    std::copy(&data->data[buffer_size], &data->data[data->size()], buffer->data);
-    for (uint8_t i = data->size() % STATE_SIZE; i < STATE_SIZE; i++)
-        buffer->data[i] = STATE_SIZE - data->size() % STATE_SIZE;
-    encrypt_CBC(buffer);
-    std::copy(&buffer->data[0], &buffer->data[STATE_SIZE], &encrypted_data->data[buffer_size]);
+    //Write the decrypted buffer to the output file
+    fs_out.write((char*)buffer->data, buffer->size());
 
     delete buffer;
-
-    return encrypted_data;
-}
-
-Array* AES::decrypt_CBC_PKCS7(Array* data)
-{
-    if (!key_set)
-        return NULL;
-    if (!iv_set)
-        return NULL;
-    if (data->size() == 0)
-        return NULL;
-    if (data->size() % STATE_SIZE)
-        return NULL;
-
-    Array* buffer = new Array(*data);
-
-    decrypt_CBC(buffer);
-
-    //Read the PKCS#7 padding value
-    uint8_t padding = buffer->data[buffer->size() - 1];
-
-    //Check the PKCS#7 padding
-
-    if (padding == 0)
-    {
-        //Padding is never zero
-        //Padding corrupted - decryption not successful
-        delete buffer;
-        return NULL;
-    }
-
-    //Check every padding byte
-    for (uint64_t i = 0; i < padding; i++)
-    {
-        //If checked padding byte is not equal to the expected value
-        if (buffer->data[buffer->size() - 1 - i] != padding)
-        {
-            //Padding corrupted - decryption not successful
-            delete buffer;
-            return NULL;
-        }
-    }
-
-    //Return decrypted data without padding
-    uint64_t decrypted_data_size = data->size() - padding;
-    Array* decrypted_data = new Array(decrypted_data_size);
-
-    std::copy(&buffer->data[0], &buffer->data[decrypted_data_size], decrypted_data->data);
-
-    delete buffer;
-
-    return decrypted_data;
-}
-
-uint8_t AES::encrypt_CBC(Array* data)
-{
-    if (!key_set)
-        return 1;
-    if (!iv_set)
-        return 1;
-
-    Array* state = new Array(STATE_SIZE);
-
-    for (uint64_t i = 0; i < data->size(); i += STATE_SIZE)
-    {
-        //Add IV
-        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
-            for (uint8_t k = 0; k < Nb; k++)
-                data->data[k + j * Nb + i] ^= IV->data[k + j * Nb];
-
-        //Prepare data
-        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
-            for (uint8_t k = 0; k < Nb; k++)
-                state->data[k + j * Nb] = data->data[j + k * NUMBER_OF_ROWS + i];
-
-        //Encrypt data
-        Cipher(state);
-
-        //Unload data
-        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
-            for (uint8_t k = 0; k < Nb; k++)
-                data->data[j + k * NUMBER_OF_ROWS + i] = state->data[k + j * Nb];
-
-        //Save IV for next block
-        std::copy(&data->data[i], &data->data[STATE_SIZE + i], IV->data);
-    }
-
-    delete state;
-
-    return 0;
-}
-
-uint8_t AES::decrypt_CBC(Array* data)
-{
-    if (!key_set)
-        return 1;
-    if (!iv_set)
-        return 1;
-
-    Array* state = new Array(STATE_SIZE);
-    Array* next_IV = new Array(STATE_SIZE);
-
-    for (uint64_t i = 0; i < data->size(); i += STATE_SIZE)
-    {
-        //Store IV for next block
-        std::copy(&data->data[i], &data->data[STATE_SIZE + i], next_IV->data);
-
-        //Prepare data
-        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
-            for (uint8_t k = 0; k < Nb; k++)
-                state->data[k + j * Nb] = data->data[j + k * NUMBER_OF_ROWS + i];
-
-        //Decrypt data
-        InvCipher(state);
-
-        //Unload data
-        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
-            for (uint8_t k = 0; k < Nb; k++)
-                data->data[j + k * NUMBER_OF_ROWS + i] = state->data[k + j * Nb];
-
-        //Add IV
-        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
-            for (uint8_t k = 0; k < Nb; k++)
-                data->data[k + j * Nb + i] ^= IV->data[k + j * Nb];
-
-        //Save IV for next block
-        std::copy(&next_IV->data[0], &next_IV->data[STATE_SIZE], IV->data);
-    }
-
-    delete state;
-    delete next_IV;
 
     return 0;
 }
@@ -653,4 +496,97 @@ uint8_t AES::xtime(uint8_t b)
     //If (b >> 7) == 0, return (b << 1)
     //If (b >> 7) == 1, return (b << 1) ^ 0x1B
     return (b << 1) ^ (((b >> 7) & 0x01) * 0x1B);
+}
+
+void AES::__encrypt(Array* data, Array* state, uint64_t data_index)
+{
+    //Prepare data
+    for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
+        for (uint8_t k = 0; k < Nb; k++)
+            state->data[k + j * Nb] = data->data[j + k * NUMBER_OF_ROWS + data_index];
+
+    //Encrypt data
+    Cipher(state);
+
+    //Unload data
+    for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
+        for (uint8_t k = 0; k < Nb; k++)
+            data->data[j + k * NUMBER_OF_ROWS + data_index] = state->data[k + j * Nb];
+}
+
+void AES::__decrypt(Array* data, Array* state, uint64_t data_index)
+{
+    //Prepare data
+    for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
+        for (uint8_t k = 0; k < Nb; k++)
+            state->data[k + j * Nb] = data->data[j + k * NUMBER_OF_ROWS + data_index];
+
+    //Decrypt data
+    InvCipher(state);
+
+    //Unload data
+    for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
+        for (uint8_t k = 0; k < Nb; k++)
+            data->data[j + k * NUMBER_OF_ROWS + data_index] = state->data[k + j * Nb];
+}
+
+uint8_t AES::__encrypt_CBC(Array* data)
+{
+    if (!key_set)
+        return 1;
+    if (!iv_set)
+        return 1;
+
+    Array* state = new Array(STATE_SIZE);
+
+    for (uint64_t i = 0; i < data->size(); i += STATE_SIZE)
+    {
+        //Add IV
+        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
+            for (uint8_t k = 0; k < Nb; k++)
+                data->data[k + j * Nb + i] ^= IV->data[k + j * Nb];
+
+        //Encrypt data
+        __encrypt(data, state, i);
+
+        //Save IV for next block
+        std::copy(&data->data[i], &data->data[STATE_SIZE + i], IV->data);
+    }
+
+    delete state;
+
+    return 0;
+}
+
+uint8_t AES::__decrypt_CBC(Array* data)
+{
+    if (!key_set)
+        return 1;
+    if (!iv_set)
+        return 1;
+
+    Array* state = new Array(STATE_SIZE);
+    Array* next_IV = new Array(STATE_SIZE);
+
+    for (uint64_t i = 0; i < data->size(); i += STATE_SIZE)
+    {
+        //Store IV for next block
+        std::copy(&data->data[i], &data->data[STATE_SIZE + i], next_IV->data);
+
+        //Decrypt data
+        __decrypt(data, state, i);
+
+        //Add IV
+        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
+            for (uint8_t k = 0; k < Nb; k++)
+                data->data[k + j * Nb + i] ^= IV->data[k + j * Nb];
+
+        //Save IV for next block
+        std::copy(&next_IV->data[0], &next_IV->data[STATE_SIZE], IV->data);
+    }
+
+    delete state;
+    delete next_IV;
+
+    return 0;
 }
