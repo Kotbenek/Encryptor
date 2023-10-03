@@ -225,23 +225,21 @@ int main(int argc, char** argv)
         case data_type::base16:
             data_to_print =
                 std::unique_ptr<char[]>((char*)Base16::data_to_base16(output_data.get()));
-            std::cout << data_to_print.get();
             break;
         case data_type::base64:
             data_to_print =
                 std::unique_ptr<char[]>((char*)Base64::data_to_base64(output_data.get()));
-            std::cout << data_to_print.get();
             break;
         case data_type::raw:
             data_to_print = std::unique_ptr<char[]>(new char[output_data->size() + 1]);
             std::memcpy(data_to_print.get(), output_data->data, output_data->size());
             data_to_print[output_data->size()] = 0;
-            std::cout << data_to_print.get();
             break;
         default:
             std::cerr << "Invalid or missing output data type.\n" << parameters.output_data_type;
             return 1;
     }
+    std::cout << data_to_print.get();
 
     return 0;
 }
