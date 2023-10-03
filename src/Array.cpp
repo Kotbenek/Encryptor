@@ -20,11 +20,8 @@ Array::Array(uint64_t size)
     _size = size;
 }
 
-Array::Array(Array& a)
+Array::Array(Array& a) : Array(a.size())
 {
-    _size = a.size();
-    data = (uint8_t*)malloc(_size);
-
     std::copy(&a.data[0], &a.data[a.size()], data);
 }
 
