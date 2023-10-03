@@ -1,6 +1,7 @@
 #include "Array.h"
 
 #include <algorithm>
+#include <cstring>
 
 uint64_t Array::size()
 {
@@ -25,6 +26,11 @@ Array::Array(Array& a)
     data = (uint8_t*)malloc(_size);
 
     std::copy(&a.data[0], &a.data[a.size()], data);
+}
+
+Array::Array(std::string& s) : Array(s.size())
+{
+    std::memcpy(data, s.c_str(), _size);
 }
 
 Array::~Array()

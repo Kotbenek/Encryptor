@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 
 class Array
 {
@@ -12,6 +13,7 @@ public:
 
     Array(uint64_t size);
     Array(Array& a);
+    Array(std::string& s);
     ~Array();
 
 private:

@@ -7,6 +7,7 @@
 #include "EncryptionAlgorithm.h"
 #include "Padding.h"
 
+#include <cstring>
 #include <getopt.h>
 #include <iostream>
 #include <memory>
@@ -162,6 +163,9 @@ int main(int argc, char** argv)
             break;
         case data_type::file:
             break;
+        case data_type::raw:
+            input_data = std::unique_ptr<Array>(new Array(parameters.input));
+            break;
         default:
             std::cerr << "Invalid or missing input data type.\n";
             return 1;
@@ -226,6 +230,12 @@ int main(int argc, char** argv)
         case data_type::base64:
             data_to_print =
                 std::unique_ptr<char[]>((char*)Base64::data_to_base64(output_data.get()));
+            std::cout << data_to_print.get();
+            break;
+        case data_type::raw:
+            data_to_print = std::unique_ptr<char[]>(new char[output_data->size() + 1]);
+            std::memcpy(data_to_print.get(), output_data->data, output_data->size());
+            data_to_print[output_data->size()] = 0;
             std::cout << data_to_print.get();
             break;
         default:
