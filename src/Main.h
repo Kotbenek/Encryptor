@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Array.h"
+#include "EncryptionAlgorithm.h"
 #include "block_cipher_mode.h"
 
 #include <string>
@@ -97,5 +99,20 @@ struct
     int block_cipher_mode = block_cipher_mode::not_set;
 } parameters;
 
+struct membuf : std::streambuf
+{
+    membuf(uint8_t* gbeg, uint8_t* gend)
+    {
+        this->setg((char*)gbeg, (char*)gbeg, (char*)gend);
+    }
+};
+
 int main(int argc, char** argv);
 void display_help();
+void action_encrypt_no_padding(Array* data, EncryptionAlgorithm* algorithm);
+void action_decrypt_no_padding(Array* data, EncryptionAlgorithm* algorithm);
+void action_encrypt(Array* data, EncryptionAlgorithm* algorithm);
+void action_decrypt(Array* data, EncryptionAlgorithm* algorithm);
+void preprocess_and_write_base16(Array* data, std::ostream* stream);
+void preprocess_and_write_base64(Array* data, std::ostream* stream);
+void preprocess_and_write_raw(Array* data, std::ostream* stream);

@@ -7,7 +7,7 @@
 #include "EncryptionAlgorithm.h"
 #include "Padding.h"
 
-#include <cstring>
+#include <fstream>
 #include <getopt.h>
 #include <iostream>
 #include <memory>
@@ -80,21 +80,6 @@ int main(int argc, char** argv)
         }
     }
 
-    //For now, if input is a file, output also must be a file
-    if (parameters.input_data_type == data_type::file &&
-        parameters.output_data_type != data_type::file)
-    {
-        std::cerr << "File input requires file output.";
-        return 1;
-    }
-    //For now, if output is a file, input also must be a file
-    if (parameters.output_data_type == data_type::file &&
-        parameters.input_data_type != data_type::file)
-    {
-        std::cerr << "File output requires file input.";
-        return 1;
-    }
-
     std::unique_ptr<EncryptionAlgorithm> algorithm;
     switch (parameters.algorithm)
     {
@@ -151,28 +136,45 @@ int main(int argc, char** argv)
     }
 
     std::unique_ptr<Array> input_data;
+    std::unique_ptr<membuf> input_stream_membuf;
+    std::unique_ptr<std::istream> input_stream;
     switch (parameters.input_data_type)
     {
         case data_type::base16:
             input_data =
                 std::unique_ptr<Array>(Base16::base16_to_data((char*)parameters.input.c_str()));
+            input_stream_membuf = std::unique_ptr<membuf>(
+                new membuf(&input_data->data[0], &input_data->data[input_data->size()]));
+            input_stream =
+                std::unique_ptr<std::istream>(new std::istream(input_stream_membuf.get()));
             break;
         case data_type::base64:
             input_data =
                 std::unique_ptr<Array>(Base64::base64_to_data((char*)parameters.input.c_str()));
+            input_stream_membuf = std::unique_ptr<membuf>(
+                new membuf(&input_data->data[0], &input_data->data[input_data->size()]));
+            input_stream =
+                std::unique_ptr<std::istream>(new std::istream(input_stream_membuf.get()));
             break;
         case data_type::file:
+            input_stream = std::unique_ptr<std::istream>(new std::ifstream(parameters.input));
+            if (!*input_stream)
+            {
+                std::cerr << "Could not open file \"" << parameters.input << "\".\n";
+                return 1;
+            }
             break;
         case data_type::raw:
             input_data = std::unique_ptr<Array>(new Array(parameters.input));
+            input_stream_membuf = std::unique_ptr<membuf>(
+                new membuf(&input_data->data[0], &input_data->data[input_data->size()]));
+            input_stream =
+                std::unique_ptr<std::istream>(new std::istream(input_stream_membuf.get()));
             break;
         default:
             std::cerr << "Invalid or missing input data type.\n";
             return 1;
     }
-
-    //TODO: Move things like block_cipher_mode to separate functions to avoid having functions named
-    //like encrypt_file_CBC_PKCS7 that results in awkward calling convention that can be seen below
 
     if (algorithm->set_block_cipher_mode(parameters.block_cipher_mode))
     {
@@ -180,66 +182,67 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    std::unique_ptr<Array> output_data;
+    void (*action)(Array * data, EncryptionAlgorithm * algorithm) = NULL;
+    void (*action_no_padding)(Array * data, EncryptionAlgorithm * algorithm) = NULL;
     switch (parameters.action)
     {
         case action::encrypt:
-            if (parameters.input_data_type == data_type::file)
-                algorithm->encrypt_file_CBC_PKCS7(parameters.input, parameters.output);
-            else
-            {
-                Padding::PKCS7::append(input_data.get(), algorithm->get_required_input_alignment());
-                algorithm->encrypt(input_data.get());
-                output_data = std::move(input_data);
-            }
+            action = action_encrypt;
+            action_no_padding = action_encrypt_no_padding;
             break;
         case action::decrypt:
-            if (parameters.input_data_type == data_type::file)
-                algorithm->decrypt_file_CBC_PKCS7(parameters.input, parameters.output);
-            else
-            {
-                algorithm->decrypt(input_data.get());
-                if (!Padding::PKCS7::check(input_data.get()))
-                {
-                    std::cerr << "Padding corrupted - decryption not successful.\n";
-                    return 1;
-                }
-                Padding::PKCS7::remove(input_data.get());
-                output_data = std::move(input_data);
-            }
+            action = action_decrypt;
+            action_no_padding = action_decrypt_no_padding;
             break;
         default:
             std::cerr << "Invalid or missing action.\n";
             return 1;
     }
 
-    //If there is no output data to print - exit
-    //(input_data_type == output_data_type == data_type::file)
-    if (!output_data)
-        return 0;
-
-    //Print output data
-    std::unique_ptr<char[]> data_to_print;
+    std::unique_ptr<std::ostream> output_stream;
+    void (*preprocess_and_write)(Array * data, std::ostream * stream) = NULL;
     switch (parameters.output_data_type)
     {
         case data_type::base16:
-            data_to_print =
-                std::unique_ptr<char[]>((char*)Base16::data_to_base16(output_data.get()));
+            output_stream = std::unique_ptr<std::ostream>(new std::ostream(std::cout.rdbuf()));
+            preprocess_and_write = preprocess_and_write_base16;
             break;
         case data_type::base64:
-            data_to_print =
-                std::unique_ptr<char[]>((char*)Base64::data_to_base64(output_data.get()));
+            output_stream = std::unique_ptr<std::ostream>(new std::ostream(std::cout.rdbuf()));
+            preprocess_and_write = preprocess_and_write_base64;
+            break;
+        case data_type::file:
+            output_stream = std::unique_ptr<std::ostream>(new std::ofstream(parameters.output));
+            if (!*output_stream)
+            {
+                std::cerr << "Could not open file \"" << parameters.output << "\".\n";
+                return 1;
+            }
+            preprocess_and_write = preprocess_and_write_raw;
             break;
         case data_type::raw:
-            data_to_print = std::unique_ptr<char[]>(new char[output_data->size() + 1]);
-            std::memcpy(data_to_print.get(), output_data->data, output_data->size());
-            data_to_print[output_data->size()] = 0;
+            output_stream = std::unique_ptr<std::ostream>(new std::ostream(std::cout.rdbuf()));
+            preprocess_and_write = preprocess_and_write_raw;
             break;
         default:
-            std::cerr << "Invalid or missing output data type.\n" << parameters.output_data_type;
+            std::cerr << "Invalid or missing output data type.\n";
             return 1;
     }
-    std::cout << data_to_print.get();
+
+    std::unique_ptr<Array> buffer(new Array(4096));
+    input_stream->read((char*)buffer->data, buffer->size());
+    std::streamsize gcount = input_stream->gcount();
+    while (input_stream->peek() != EOF)
+    {
+        action_no_padding(buffer.get(), algorithm.get());
+        preprocess_and_write(buffer.get(), output_stream.get());
+        input_stream->read((char*)buffer->data, buffer->size());
+        gcount = input_stream->gcount();
+    }
+
+    buffer->resize(gcount);
+    action(buffer.get(), algorithm.get());
+    preprocess_and_write(buffer.get(), output_stream.get());
 
     return 0;
 }
@@ -284,4 +287,48 @@ void display_help()
                  "Help:\n"
                  "  --help\n"
                  "\n";
+}
+
+void action_encrypt_no_padding(Array* data, EncryptionAlgorithm* algorithm)
+{
+    algorithm->encrypt(data);
+}
+
+void action_decrypt_no_padding(Array* data, EncryptionAlgorithm* algorithm)
+{
+    algorithm->decrypt(data);
+}
+
+void action_encrypt(Array* data, EncryptionAlgorithm* algorithm)
+{
+    Padding::PKCS7::append(data, algorithm->get_required_input_alignment());
+    algorithm->encrypt(data);
+}
+
+void action_decrypt(Array* data, EncryptionAlgorithm* algorithm)
+{
+    algorithm->decrypt(data);
+    if (!Padding::PKCS7::check(data))
+    {
+        std::cerr << "Padding corrupted - decryption not successful.\n";
+        std::exit(1);
+    }
+    Padding::PKCS7::remove(data);
+}
+
+void preprocess_and_write_base16(Array* data, std::ostream* stream)
+{
+    std::unique_ptr<char[]> preprocessed_data((char*)Base16::data_to_base16(data));
+    *stream << preprocessed_data.get();
+}
+
+void preprocess_and_write_base64(Array* data, std::ostream* stream)
+{
+    std::unique_ptr<char[]> preprocessed_data((char*)Base64::data_to_base64(data));
+    *stream << preprocessed_data.get();
+}
+
+void preprocess_and_write_raw(Array* data, std::ostream* stream)
+{
+    stream->write((char*)data->data, data->size());
 }
