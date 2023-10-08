@@ -5,7 +5,6 @@
 #include "block_cipher_mode.h"
 
 #include <cstdint>
-#include <string>
 
 class AES : public EncryptionAlgorithm
 {
@@ -23,14 +22,8 @@ public:
     uint8_t set_key(Array* K);
     uint8_t set_IV(Array* iv);
     uint8_t set_block_cipher_mode(int block_cipher_mode);
-
     uint8_t encrypt(Array* data);
     uint8_t decrypt(Array* data);
-
-    //TODO: rewrite file handling logic to not have fstream operations in this class
-    uint8_t encrypt_file_CBC_PKCS7(std::string file_in, std::string file_out);
-    uint8_t decrypt_file_CBC_PKCS7(std::string file_in, std::string file_out);
-
     uint8_t get_required_input_alignment();
 
 private:
@@ -55,8 +48,6 @@ private:
     static const uint8_t Sbox[];
     //Inverse substitution table
     static const uint8_t Inv_Sbox[];
-
-    static const uint32_t FILE_BUFFER_SIZE = 256 * 4 * Nb;
 
     bool key_set;
     bool iv_set;

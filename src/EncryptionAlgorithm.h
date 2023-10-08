@@ -3,7 +3,6 @@
 #include "Array.h"
 
 #include <iostream>
-#include <string>
 
 class EncryptionAlgorithm
 {
@@ -21,18 +20,6 @@ public:
     }
 
     virtual uint8_t set_block_cipher_mode(int block_cipher_mode)
-    {
-        not_implemented();
-        std::exit(1);
-    }
-
-    virtual uint8_t encrypt_file_CBC_PKCS7(std::string file_in, std::string file_out)
-    {
-        not_implemented();
-        std::exit(1);
-    }
-
-    virtual uint8_t decrypt_file_CBC_PKCS7(std::string file_in, std::string file_out)
     {
         not_implemented();
         std::exit(1);

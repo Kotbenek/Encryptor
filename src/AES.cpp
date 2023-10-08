@@ -1,10 +1,6 @@
 #include "AES.h"
 
-#include "Padding.h"
-
 #include <algorithm>
-#include <cstdio>
-#include <fstream>
 
 AES::AES(key_length len)
 {
@@ -90,114 +86,6 @@ uint8_t AES::encrypt(Array* data)
 uint8_t AES::decrypt(Array* data)
 {
     return (this->*__decrypt_block_cipher_mode)(data);
-}
-
-uint8_t AES::encrypt_file_CBC_PKCS7(std::string file_in, std::string file_out)
-{
-    //Prepare input and output streams
-    std::ifstream fs_in(file_in, std::ifstream::binary);
-    std::ofstream fs_out(file_out, std::ofstream::binary);
-
-    //Prepare buffer for data
-    Array* buffer = new Array(FILE_BUFFER_SIZE);
-
-    //Read the first chunk of file
-    fs_in.read((char*)buffer->data, buffer->size());
-
-    //While the buffer is full
-    while (!(buffer->size() - fs_in.gcount()))
-    {
-        //Encrypt the buffer
-        __encrypt_CBC(buffer);
-
-        //Write the encrypted buffer to the output file
-        fs_out.write((char*)buffer->data, buffer->size());
-
-        //Read next data chunk
-        fs_in.read((char*)buffer->data, buffer->size());
-    }
-
-    //Process the last file chunk
-    Array* last_buffer = new Array(fs_in.gcount());
-    std::copy(&buffer->data[0], &buffer->data[last_buffer->size()], last_buffer->data);
-    delete buffer;
-
-    //Encrypt the buffer
-    Padding::PKCS7::append(last_buffer, get_required_input_alignment());
-    __encrypt_CBC(last_buffer);
-    buffer = last_buffer;
-
-    //Write the encrypted buffer to the output file
-    fs_out.write((char*)buffer->data, buffer->size());
-
-    delete buffer;
-
-    return 0;
-}
-
-uint8_t AES::decrypt_file_CBC_PKCS7(std::string file_in, std::string file_out)
-{
-    //Prepare input and output streams
-    std::ifstream fs_in(file_in, std::ifstream::binary);
-    std::ofstream fs_out(file_out, std::ofstream::binary);
-
-    //Prepare buffer for data
-    Array* buffer = new Array(FILE_BUFFER_SIZE);
-
-    //Read the first chunk of file
-    fs_in.read((char*)buffer->data, buffer->size());
-
-    uint32_t gcount = fs_in.gcount();
-    bool input_stream_reached_EOF = fs_in.peek() == EOF;
-
-    //While the input stream did not reach EOF
-    //(this implies the buffer is full)
-    while (!input_stream_reached_EOF)
-    {
-        //Decrypt the buffer
-        __decrypt_CBC(buffer);
-
-        //Write the decrypted buffer to the output file
-        fs_out.write((char*)buffer->data, buffer->size());
-
-        //Read next data chunk
-        fs_in.read((char*)buffer->data, buffer->size());
-
-        gcount = fs_in.gcount();
-        input_stream_reached_EOF = fs_in.peek() == EOF;
-    }
-
-    //Process the last file chunk
-    Array* last_buffer = new Array(gcount);
-    std::copy(&buffer->data[0], &buffer->data[last_buffer->size()], last_buffer->data);
-    delete buffer;
-
-    //Decrypt the buffer
-    __decrypt_CBC(last_buffer);
-    if (!Padding::PKCS7::check(last_buffer))
-    {
-        //Padding corrupted - decryption not successful
-
-        //Close the output stream
-        fs_out.close();
-
-        //Remove output file
-        remove(file_out.c_str());
-
-        delete last_buffer;
-
-        return 1;
-    }
-
-    Padding::PKCS7::remove(last_buffer);
-    buffer = last_buffer;
-
-    //Write the decrypted buffer to the output file
-    fs_out.write((char*)buffer->data, buffer->size());
-
-    delete buffer;
-
-    return 0;
 }
 
 uint8_t AES::get_required_input_alignment()
