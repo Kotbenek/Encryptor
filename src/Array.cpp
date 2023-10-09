@@ -1,7 +1,9 @@
 #include "Array.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <cstring>
+#include <string>
 
 uint64_t Array::size()
 {

@@ -1,6 +1,10 @@
 #include "AES.h"
 
+#include "Array.h"
+#include "block_cipher_mode.h"
+
 #include <algorithm>
+#include <cstdint>
 
 AES::AES(key_length len)
 {

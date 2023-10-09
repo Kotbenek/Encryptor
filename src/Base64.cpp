@@ -2,6 +2,7 @@
 
 #include "Array.h"
 
+#include <cstdint>
 #include <cstring>
 
 const char* Base64::data_to_base64(Array* array)
