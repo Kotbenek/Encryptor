@@ -244,9 +244,8 @@ void AES::InvShiftRows(Array* state)
 
 void AES::InvSubBytes(Array* state)
 {
-    for (uint8_t i = 0; i < NUMBER_OF_ROWS; i++)
-        for (uint8_t j = 0; j < Nb; j++)
-            state->data[j + i * Nb] = Inv_Sbox[(uint8_t)state->data[j + i * Nb]];
+    for (uint8_t i = 0; i < STATE_SIZE; i++)
+        state->data[i] = Inv_Sbox[(uint8_t)state->data[i]];
 }
 
 void AES::KeyExpansion(Array* K)
@@ -355,9 +354,8 @@ void AES::ShiftRows(Array* state)
 
 void AES::SubBytes(Array* state)
 {
-    for (uint8_t i = 0; i < NUMBER_OF_ROWS; i++)
-        for (uint8_t j = 0; j < Nb; j++)
-            state->data[j + i * Nb] = Sbox[(uint8_t)state->data[j + i * Nb]];
+    for (uint8_t i = 0; i < STATE_SIZE; i++)
+        state->data[i] = Sbox[(uint8_t)state->data[i]];
 }
 
 void AES::SubWord(Array* word)
@@ -440,9 +438,8 @@ uint8_t AES::__encrypt_CBC(Array* data)
     for (uint64_t i = 0; i < data->size(); i += STATE_SIZE)
     {
         //Add IV
-        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
-            for (uint8_t k = 0; k < Nb; k++)
-                data->data[k + j * Nb + i] ^= IV->data[k + j * Nb];
+        for (uint8_t j = 0; j < STATE_SIZE; j++)
+            data->data[j + i] ^= IV->data[j];
 
         //Encrypt data
         __encrypt(data, state, i);
@@ -475,9 +472,8 @@ uint8_t AES::__decrypt_CBC(Array* data)
         __decrypt(data, state, i);
 
         //Add IV
-        for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
-            for (uint8_t k = 0; k < Nb; k++)
-                data->data[k + j * Nb + i] ^= IV->data[k + j * Nb];
+        for (uint8_t j = 0; j < STATE_SIZE; j++)
+            data->data[j + i] ^= IV->data[j];
 
         //Save IV for next block
         std::copy(&next_IV->data[0], &next_IV->data[STATE_SIZE], IV->data);
