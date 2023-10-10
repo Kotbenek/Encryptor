@@ -2,10 +2,12 @@
 
 #include "Array.h"
 #include "EncryptionAlgorithm.h"
+#include "action.h"
+#include "algorithm.h"
 #include "block_cipher_mode.h"
+#include "data_type.h"
 
 #include <string>
-#include <unordered_map>
 
 #define parse_parameter(parameter_type, parameter)                                                \
     {                                                                                             \
@@ -18,71 +20,6 @@
         std::cerr << "Invalid value \"" << optarg << "\" for parameter --" << #parameter << "\n"; \
         return 1;                                                                                 \
     }
-
-namespace opt
-{
-    enum opt
-    {
-        flag_set = 0,
-        input_data_type = 1000,
-        input,
-        output_data_type,
-        output,
-        algorithm,
-        key_data_type,
-        key,
-        iv_data_type,
-        iv,
-        block_cipher_mode,
-        help
-    };
-}
-
-namespace action
-{
-    enum action
-    {
-        not_set,
-        encrypt,
-        decrypt
-    };
-}
-
-namespace data_type
-{
-    enum data_type
-    {
-        not_set,
-        base16,
-        base64,
-        file,
-        raw
-    };
-
-    static std::unordered_map<std::string, data_type> const get_from_string = {
-        {"base16", data_type::base16},
-        {"base64", data_type::base64},
-        {"file",   data_type::file  },
-        {"raw",    data_type::raw   }
-    };
-} //namespace data_type
-
-namespace algorithm
-{
-    enum algorithm
-    {
-        not_set,
-        AES128,
-        AES192,
-        AES256
-    };
-
-    static std::unordered_map<std::string, algorithm> const get_from_string = {
-        {"aes128", algorithm::AES128},
-        {"aes192", algorithm::AES192},
-        {"aes256", algorithm::AES256}
-    };
-} //namespace algorithm
 
 struct
 {
@@ -98,14 +35,6 @@ struct
     std::string iv;
     int block_cipher_mode = block_cipher_mode::not_set;
 } parameters;
-
-struct membuf : std::streambuf
-{
-    membuf(uint8_t* gbeg, uint8_t* gend)
-    {
-        this->setg((char*)gbeg, (char*)gbeg, (char*)gend);
-    }
-};
 
 int main(int argc, char** argv);
 void display_help();

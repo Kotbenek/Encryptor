@@ -6,7 +6,12 @@
 #include "Base64.h"
 #include "EncryptionAlgorithm.h"
 #include "Padding.h"
+#include "action.h"
+#include "algorithm.h"
 #include "block_cipher_mode.h"
+#include "data_type.h"
+#include "membuf.h"
+#include "opt.h"
 
 #include <fstream>
 #include <getopt.h>
