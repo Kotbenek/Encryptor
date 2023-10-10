@@ -35,6 +35,9 @@ private:
     //Initialization vector
     Array* IV;
 
+    //Temporary state for MixColumns and InvMixColumns
+    Array* temp_state;
+
     //Number of columns (32-bit words) comprising the State
     static const uint8_t Nb = 4;
     //Number of rows comprising the State
