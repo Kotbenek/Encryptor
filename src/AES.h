@@ -26,13 +26,12 @@ public:
     uint8_t get_required_input_alignment();
 
 private:
-    //Round key
     Array* Round_Key;
     //Number of 32-bit words comprising the Cipher key
     uint8_t Nk;
     //Number of rounds
     uint8_t Nr;
-    //Initialization vector
+
     Array* IV;
 
     //Temporary state for MixColumns and InvMixColumns
@@ -42,7 +41,6 @@ private:
     static const uint8_t Nb = 4;
     //Number of rows comprising the State
     static const uint8_t NUMBER_OF_ROWS = 4;
-    //State size
     static const uint8_t STATE_SIZE = NUMBER_OF_ROWS * Nb;
     //Round constant
     static const uint8_t Rcon[];
