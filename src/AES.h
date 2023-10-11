@@ -50,7 +50,6 @@ private:
     static const uint8_t Inv_Sbox[];
 
     bool key_set;
-    bool iv_set;
 
     void AddRoundKey(Array* state, uint8_t round_number);
     void Cipher(Array* data);

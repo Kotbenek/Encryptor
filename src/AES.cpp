@@ -28,7 +28,6 @@ AES::AES(key_length len)
     }
 
     key_set = false;
-    iv_set = false;
 
     temp_state = new Array(STATE_SIZE);
 }
@@ -72,8 +71,6 @@ uint8_t AES::set_IV(Array* iv)
         return 1;
 
     IV = new Array(*iv);
-
-    iv_set = true;
 
     return 0;
 }
@@ -429,7 +426,7 @@ uint8_t AES::__encrypt_CBC(Array* data)
 {
     if (!key_set)
         return 1;
-    if (!iv_set)
+    if (!IV)
         return 1;
 
     Array* state = new Array(STATE_SIZE);
@@ -456,7 +453,7 @@ uint8_t AES::__decrypt_CBC(Array* data)
 {
     if (!key_set)
         return 1;
-    if (!iv_set)
+    if (!IV)
         return 1;
 
     Array* state = new Array(STATE_SIZE);
