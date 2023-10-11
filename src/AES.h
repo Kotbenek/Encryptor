@@ -26,7 +26,7 @@ public:
     uint8_t get_required_input_alignment();
 
 private:
-    Array* Round_Key;
+    Array* Round_Key = NULL;
     //Number of 32-bit words comprising the Cipher key
     uint8_t Nk;
     //Number of rounds
@@ -48,8 +48,6 @@ private:
     static const uint8_t Sbox[];
     //Inverse substitution table
     static const uint8_t Inv_Sbox[];
-
-    bool key_set;
 
     void AddRoundKey(Array* state, uint8_t round_number);
     void Cipher(Array* data);

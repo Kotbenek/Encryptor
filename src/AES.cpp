@@ -8,26 +8,23 @@
 
 AES::AES(key_length len)
 {
-    if (len == key_length::AES128)
+    switch (len)
     {
-        Nk = 4;
-        Nr = 10;
-        Round_Key = new Array(176);
+        case key_length::AES128:
+            Nk = 4;
+            Nr = 10;
+            break;
+        case key_length::AES192:
+            Nk = 6;
+            Nr = 12;
+            break;
+        case key_length::AES256:
+            Nk = 8;
+            Nr = 14;
+            break;
+        default:
+            abort();
     }
-    else if (len == key_length::AES192)
-    {
-        Nk = 6;
-        Nr = 12;
-        Round_Key = new Array(208);
-    }
-    else if (len == key_length::AES256)
-    {
-        Nk = 8;
-        Nr = 14;
-        Round_Key = new Array(240);
-    }
-
-    key_set = false;
 
     temp_state = new Array(STATE_SIZE);
 }
@@ -45,19 +42,31 @@ uint8_t AES::set_key(Array* K)
     if (!K)
         return 1;
 
-    //AES128
-    if (Nk == 4 && K->size() != 16)
-        return 1;
-    //AES192
-    else if (Nk == 6 && K->size() != 24)
-        return 1;
-    //AES256
-    else if (Nk == 8 && K->size() != 32)
-        return 1;
+    switch (Nk)
+    {
+        case 4:
+            //AES128
+            if (K->size() != 16)
+                return 1;
+            Round_Key = new Array(176);
+            break;
+        case 6:
+            //AES192
+            if (K->size() != 24)
+                return 1;
+            Round_Key = new Array(208);
+            break;
+        case 8:
+            //AES256
+            if (K->size() != 32)
+                return 1;
+            Round_Key = new Array(240);
+            break;
+        default:
+            abort();
+    }
 
     KeyExpansion(K);
-
-    key_set = true;
 
     return 0;
 }
@@ -424,7 +433,7 @@ void AES::__decrypt(Array* data, Array* state, uint64_t data_index)
 
 uint8_t AES::__encrypt_CBC(Array* data)
 {
-    if (!key_set)
+    if (!Round_Key)
         return 1;
     if (!IV)
         return 1;
@@ -451,7 +460,7 @@ uint8_t AES::__encrypt_CBC(Array* data)
 
 uint8_t AES::__decrypt_CBC(Array* data)
 {
-    if (!key_set)
+    if (!Round_Key)
         return 1;
     if (!IV)
         return 1;
