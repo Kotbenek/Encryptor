@@ -43,6 +43,9 @@ AES::~AES()
 
 uint8_t AES::set_key(Array* K)
 {
+    if (!K)
+        return 1;
+
     //AES128
     if (Nk == 4 && K->size() != 16)
         return 1;
@@ -62,6 +65,9 @@ uint8_t AES::set_key(Array* K)
 
 uint8_t AES::set_IV(Array* iv)
 {
+    if (!iv)
+        return 1;
+
     if (iv->size() != STATE_SIZE)
         return 1;
 
