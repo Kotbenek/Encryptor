@@ -36,8 +36,7 @@ AES::AES(key_length len)
 AES::~AES()
 {
     delete Round_Key;
-    if (iv_set)
-        delete IV;
+    delete IV;
 
     delete temp_state;
 }

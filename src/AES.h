@@ -32,7 +32,7 @@ private:
     //Number of rounds
     uint8_t Nr;
 
-    Array* IV;
+    Array* IV = NULL;
 
     //Temporary state for MixColumns and InvMixColumns
     Array* temp_state;
