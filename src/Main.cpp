@@ -77,7 +77,7 @@ int main(int argc, char** argv)
                 parse_parameter(block_cipher_mode, block_cipher_mode);
             case opt::help:
                 display_help();
-                break;
+                return 0;
             case '?':
                 //Unknown argument
                 return 1;
