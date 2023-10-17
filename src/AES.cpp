@@ -88,6 +88,10 @@ uint8_t AES::set_block_cipher_mode(int block_cipher_mode)
 {
     switch (block_cipher_mode)
     {
+        case block_cipher_mode::ECB:
+            __encrypt_block_cipher_mode = &AES::__encrypt_ECB;
+            __decrypt_block_cipher_mode = &AES::__decrypt_ECB;
+            return 0;
         case block_cipher_mode::CBC:
             __encrypt_block_cipher_mode = &AES::__encrypt_CBC;
             __decrypt_block_cipher_mode = &AES::__decrypt_CBC;
@@ -109,8 +113,7 @@ uint8_t AES::decrypt(Array* data)
 
 uint8_t AES::get_required_input_alignment()
 {
-    //For now, the only implemented block cipher mode is CBC, which requires padding equal to
-    //state size
+    //For now, all implemented block cipher modes require padding equal to state size
     return STATE_SIZE;
 }
 
@@ -429,6 +432,42 @@ void AES::__decrypt(Array* data, Array* state, uint64_t data_index)
     for (uint8_t j = 0; j < NUMBER_OF_ROWS; j++)
         for (uint8_t k = 0; k < Nb; k++)
             data->data[j + k * NUMBER_OF_ROWS + data_index] = state->data[k + j * Nb];
+}
+
+uint8_t AES::__encrypt_ECB(Array* data)
+{
+    if (!Round_Key)
+        return 1;
+
+    Array* state = new Array(STATE_SIZE);
+
+    for (uint64_t i = 0; i < data->size(); i += STATE_SIZE)
+    {
+        //Encrypt data
+        __encrypt(data, state, i);
+    }
+
+    delete state;
+
+    return 0;
+}
+
+uint8_t AES::__decrypt_ECB(Array* data)
+{
+    if (!Round_Key)
+        return 1;
+
+    Array* state = new Array(STATE_SIZE);
+
+    for (uint64_t i = 0; i < data->size(); i += STATE_SIZE)
+    {
+        //Decrypt data
+        __decrypt(data, state, i);
+    }
+
+    delete state;
+
+    return 0;
 }
 
 uint8_t AES::__encrypt_CBC(Array* data)

@@ -295,6 +295,7 @@ void display_help()
                  "  aes192\n"
                  "  aes256\n"
                  "<block_cipher_mode>:\n"
+                 "  ecb\n"
                  "  cbc\n"
                  "\n"
                  "Help:\n"

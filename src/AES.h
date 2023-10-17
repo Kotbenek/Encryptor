@@ -70,6 +70,8 @@ private:
     uint8_t (AES::*__encrypt_block_cipher_mode)(Array* data) = NULL;
     uint8_t (AES::*__decrypt_block_cipher_mode)(Array* data) = NULL;
 
+    uint8_t __encrypt_ECB(Array* data);
+    uint8_t __decrypt_ECB(Array* data);
     uint8_t __encrypt_CBC(Array* data);
     uint8_t __decrypt_CBC(Array* data);
 };
