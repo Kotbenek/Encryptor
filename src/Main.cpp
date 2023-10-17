@@ -137,13 +137,15 @@ int main(int argc, char** argv)
         case data_type::base64:
             iv = std::unique_ptr<Array>(Base64::base64_to_data((char*)parameters.iv.c_str()));
             break;
+        case data_type::not_set:
+            break;
         default:
-            std::cerr << "Invalid or missing IV type.\n";
+            std::cerr << "Invalid IV type.\n";
             return 1;
     }
-    if (!iv || algorithm->set_IV(iv.get()))
+    if (iv && algorithm->set_IV(iv.get()))
     {
-        std::cerr << "Invalid or missing IV.\n";
+        std::cerr << "Invalid IV.\n";
         return 1;
     }
 
@@ -188,6 +190,20 @@ int main(int argc, char** argv)
             return 1;
     }
 
+    switch (parameters.block_cipher_mode)
+    {
+        case block_cipher_mode::ECB:
+            break;
+        case block_cipher_mode::CBC:
+            if (!iv)
+            {
+                std::cerr << "Missing IV.\n";
+                return 1;
+            }
+            break;
+        default:
+            abort();
+    }
     if (algorithm->set_block_cipher_mode(parameters.block_cipher_mode))
     {
         std::cerr << "Invalid or missing block cipher mode.\n";
