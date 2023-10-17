@@ -75,62 +75,111 @@ test_encrypt_decrypt_aes_data()
     local ENCRYPTED_DATA
     local DECRYPTED_DATA
 
-    ENCRYPTED_DATA=$(./bin/encryptor "--input_data_type" "$1" "--input" "$2" "--output_data_type" "$3" "--encrypt" "--algorithm" "aes$4" "--block_cipher_mode" "$5" "--key_data_type" "$6" "--key" "$7" "--iv_data_type" "$8" "--iv" "$9")
+    if [ "$8" == "" ]; then
+        ENCRYPTED_DATA=$(./bin/encryptor "--input_data_type" "$1" "--input" "$2" "--output_data_type" "$3" "--encrypt" "--algorithm" "aes$4" "--block_cipher_mode" "$5" "--key_data_type" "$6" "--key" "$7")
+    else
+        ENCRYPTED_DATA=$(./bin/encryptor "--input_data_type" "$1" "--input" "$2" "--output_data_type" "$3" "--encrypt" "--algorithm" "aes$4" "--block_cipher_mode" "$5" "--key_data_type" "$6" "--key" "$7" "--iv_data_type" "$8" "--iv" "$9")
+    fi
 
     if assert_not_sigsegv; then
-        DECRYPTED_DATA=$(./bin/encryptor "--input_data_type" "$3" "--input" "${ENCRYPTED_DATA}" "--output_data_type" "$1" "--decrypt" "--algorithm" "aes$4" "--block_cipher_mode" "$5" "--key_data_type" "$6" "--key" "$7" "--iv_data_type" "$8" "--iv" "$9")
+        if [ "$8" == "" ]; then
+            DECRYPTED_DATA=$(./bin/encryptor "--input_data_type" "$3" "--input" "${ENCRYPTED_DATA}" "--output_data_type" "$1" "--decrypt" "--algorithm" "aes$4" "--block_cipher_mode" "$5" "--key_data_type" "$6" "--key" "$7")
+        else
+            DECRYPTED_DATA=$(./bin/encryptor "--input_data_type" "$3" "--input" "${ENCRYPTED_DATA}" "--output_data_type" "$1" "--decrypt" "--algorithm" "aes$4" "--block_cipher_mode" "$5" "--key_data_type" "$6" "--key" "$7" "--iv_data_type" "$8" "--iv" "$9")
+        fi
 
         if assert_not_sigsegv; then
             assert_equal "$2" "${DECRYPTED_DATA}"
         else
-            echo "./bin/encryptor --input_data_type $3 --input ${ENCRYPTED_DATA} --output_data_type $1 --decrypt --algorithm aes$4 --block_cipher_mode $5 --key_data_type $6 --key $7 --iv_data_type $8 --iv $9"
+            if [ "$8" == "" ]; then
+                echo "./bin/encryptor --input_data_type $3 --input ${ENCRYPTED_DATA} --output_data_type $1 --decrypt --algorithm aes$4 --block_cipher_mode $5 --key_data_type $6 --key $7"
+            else
+                echo "./bin/encryptor --input_data_type $3 --input ${ENCRYPTED_DATA} --output_data_type $1 --decrypt --algorithm aes$4 --block_cipher_mode $5 --key_data_type $6 --key $7 --iv_data_type $8 --iv $9"
+            fi
         fi
     else
-        echo "./bin/encryptor --input_data_type $1 --input $2 --output_data_type $3 --encrypt --algorithm aes$4 --block_cipher_mode $5 --key_data_type $6 --key $7 --iv_data_type $8 --iv $9"
+        if [ "$8" == "" ]; then
+            echo "./bin/encryptor --input_data_type $1 --input $2 --output_data_type $3 --encrypt --algorithm aes$4 --block_cipher_mode $5 --key_data_type $6 --key $7"
+        else
+            echo "./bin/encryptor --input_data_type $1 --input $2 --output_data_type $3 --encrypt --algorithm aes$4 --block_cipher_mode $5 --key_data_type $6 --key $7 --iv_data_type $8 --iv $9"
+        fi
     fi
 }
 
 DATA_INPUT_TYPES=("base16" "base64")
 AES_SIZES=("128" "192" "256")
+BLOCK_CIPHER_MODES=("ecb" "cbc")
 
-for aes_size in "${AES_SIZES[@]}"; do
-    for input_type in "${DATA_INPUT_TYPES[@]}"; do
-        for output_type in "${DATA_INPUT_TYPES[@]}"; do
-            for key_type in "${DATA_INPUT_TYPES[@]}"; do
-                for iv_type in "${DATA_INPUT_TYPES[@]}"; do
-                    print_test_init "data, input ${input_type}, output ${output_type}, AES${aes_size}, CBC, key ${key_type}, IV ${iv_type}"
+for block_cipher_mode in "${BLOCK_CIPHER_MODES[@]}"; do
+    for aes_size in "${AES_SIZES[@]}"; do
+        for input_type in "${DATA_INPUT_TYPES[@]}"; do
+            for output_type in "${DATA_INPUT_TYPES[@]}"; do
+                for key_type in "${DATA_INPUT_TYPES[@]}"; do
+                    if [ "${block_cipher_mode}" == "ecb" ]; then
+                        print_test_init "data, input ${input_type}, output ${output_type}, AES${aes_size}, ${block_cipher_mode^^}, key ${key_type}"
 
-                    if [ "${input_type}" == "base16" ]; then
-                        INPUT="6BC1BEE22E409F96E93D7E117393172A"
+                            if [ "${input_type}" == "base16" ]; then
+                                INPUT="6BC1BEE22E409F96E93D7E117393172A"
+                            else
+                                INPUT="a8G+4i5An5bpPX4Rc5MXKg=="
+                            fi
+
+                            if [ "${key_type}" == "base16" ]; then
+                                if [ "${aes_size}" == "128" ]; then
+                                    KEY="2B7E151628AED2A6ABF7158809CF4F3C"
+                                elif [ "${aes_size}" == "192" ]; then
+                                    KEY="8E73B0F7DA0E6452C810F32B809079E562F8EAD2522C6B7B"
+                                else
+                                    KEY="603DEB1015CA71BE2B73AEF0857D77811F352C073B6108D72D9810A30914DFF4"
+                                fi
+                            else
+                                if [ "${aes_size}" == "128" ]; then
+                                    KEY="K34VFiiu0qar9xWICc9PPA=="
+                                elif [ "${aes_size}" == "192" ]; then
+                                    KEY="jnOw99oOZFLIEPMrgJB55WL46tJSLGt7"
+                                else
+                                    KEY="YD3rEBXKcb4rc67whX13gR81LAc7YQjXLZgQowkU3/Q="
+                                fi
+                            fi
+
+                            test_encrypt_decrypt_aes_data "${input_type}" "${INPUT}" "${output_type}" "${aes_size}" ${block_cipher_mode} "${key_type}" "${KEY}"
                     else
-                        INPUT="a8G+4i5An5bpPX4Rc5MXKg=="
-                    fi
+                        for iv_type in "${DATA_INPUT_TYPES[@]}"; do
+                            print_test_init "data, input ${input_type}, output ${output_type}, AES${aes_size}, ${block_cipher_mode^^}, key ${key_type}, IV ${iv_type}"
 
-                    if [ "${key_type}" == "base16" ]; then
-                        if [ "${aes_size}" == "128" ]; then
-                            KEY="2B7E151628AED2A6ABF7158809CF4F3C"
-                        elif [ "${aes_size}" == "192" ]; then
-                            KEY="8E73B0F7DA0E6452C810F32B809079E562F8EAD2522C6B7B"
-                        else
-                            KEY="603DEB1015CA71BE2B73AEF0857D77811F352C073B6108D72D9810A30914DFF4"
-                        fi
-                    else
-                        if [ "${aes_size}" == "128" ]; then
-                            KEY="K34VFiiu0qar9xWICc9PPA=="
-                        elif [ "${aes_size}" == "192" ]; then
-                            KEY="jnOw99oOZFLIEPMrgJB55WL46tJSLGt7"
-                        else
-                            KEY="YD3rEBXKcb4rc67whX13gR81LAc7YQjXLZgQowkU3/Q="
-                        fi
-                    fi
+                            if [ "${input_type}" == "base16" ]; then
+                                INPUT="6BC1BEE22E409F96E93D7E117393172A"
+                            else
+                                INPUT="a8G+4i5An5bpPX4Rc5MXKg=="
+                            fi
 
-                    if [ "${iv_type}" == "base16" ]; then
-                        IV="000102030405060708090A0B0C0D0E0F"
-                    else
-                        IV="AAECAwQFBgcICQoLDA0ODw=="
-                    fi
+                            if [ "${key_type}" == "base16" ]; then
+                                if [ "${aes_size}" == "128" ]; then
+                                    KEY="2B7E151628AED2A6ABF7158809CF4F3C"
+                                elif [ "${aes_size}" == "192" ]; then
+                                    KEY="8E73B0F7DA0E6452C810F32B809079E562F8EAD2522C6B7B"
+                                else
+                                    KEY="603DEB1015CA71BE2B73AEF0857D77811F352C073B6108D72D9810A30914DFF4"
+                                fi
+                            else
+                                if [ "${aes_size}" == "128" ]; then
+                                    KEY="K34VFiiu0qar9xWICc9PPA=="
+                                elif [ "${aes_size}" == "192" ]; then
+                                    KEY="jnOw99oOZFLIEPMrgJB55WL46tJSLGt7"
+                                else
+                                    KEY="YD3rEBXKcb4rc67whX13gR81LAc7YQjXLZgQowkU3/Q="
+                                fi
+                            fi
 
-                    test_encrypt_decrypt_aes_data "${input_type}" "${INPUT}" "${output_type}" "${aes_size}" "cbc" "${key_type}" "${KEY}" "${iv_type}" "${IV}"
+                            if [ "${iv_type}" == "base16" ]; then
+                                IV="000102030405060708090A0B0C0D0E0F"
+                            else
+                                IV="AAECAwQFBgcICQoLDA0ODw=="
+                            fi
+
+                            test_encrypt_decrypt_aes_data "${input_type}" "${INPUT}" "${output_type}" "${aes_size}" ${block_cipher_mode} "${key_type}" "${KEY}" "${iv_type}" "${IV}"
+                        done
+                    fi
                 done
             done
         done
