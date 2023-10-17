@@ -201,12 +201,16 @@ int main(int argc, char** argv)
                 return 1;
             }
             break;
+        case block_cipher_mode::not_set:
+            std::cerr << "Missing block cipher mode.\n";
+            return 1;
         default:
-            abort();
+            std::cerr << "Invalid block cipher mode.\n";
+            return 1;
     }
     if (algorithm->set_block_cipher_mode(parameters.block_cipher_mode))
     {
-        std::cerr << "Invalid or missing block cipher mode.\n";
+        std::cerr << "Invalid block cipher mode.\n";
         return 1;
     }
 
