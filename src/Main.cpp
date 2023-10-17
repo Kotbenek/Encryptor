@@ -20,6 +20,12 @@
 
 int main(int argc, char** argv)
 {
+    if (argc == 1)
+    {
+        display_help();
+        return 0;
+    }
+
     int c;
 
     while (1)
