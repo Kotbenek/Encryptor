@@ -143,7 +143,8 @@ int main(int argc, char** argv)
             std::cerr << "Invalid IV type.\n";
             return 1;
     }
-    if (iv && algorithm->set_IV(iv.get()))
+    if ((!iv && parameters.iv_data_type != data_type::not_set) ||
+        (iv && algorithm->set_IV(iv.get())))
     {
         std::cerr << "Invalid IV.\n";
         return 1;
