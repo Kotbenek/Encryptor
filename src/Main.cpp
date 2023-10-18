@@ -31,20 +31,21 @@ int main(int argc, char** argv)
     while (1)
     {
         static struct option long_options[] = {
-            {"encrypt",           no_argument,       &parameters.action, action::encrypt       },
-            {"decrypt",           no_argument,       &parameters.action, action::decrypt       },
-            {"input_data_type",   required_argument, 0,                  opt::input_data_type  },
-            {"input",             required_argument, 0,                  opt::input            },
-            {"output_data_type",  required_argument, 0,                  opt::output_data_type },
-            {"output",            required_argument, 0,                  opt::output           },
-            {"algorithm",         required_argument, 0,                  opt::algorithm        },
-            {"key_data_type",     required_argument, 0,                  opt::key_data_type    },
-            {"key",               required_argument, 0,                  opt::key              },
-            {"iv_data_type",      required_argument, 0,                  opt::iv_data_type     },
-            {"iv",                required_argument, 0,                  opt::iv               },
-            {"block_cipher_mode", required_argument, 0,                  opt::block_cipher_mode},
-            {"help",              no_argument,       0,                  opt::help             },
-            {0,                   0,                 0,                  0                     }
+            {"encrypt",                  no_argument,       &parameters.action,                   action::encrypt       },
+            {"decrypt",                  no_argument,       &parameters.action,                   action::decrypt       },
+            {"input_data_type",          required_argument, 0,                                    opt::input_data_type  },
+            {"input",                    required_argument, 0,                                    opt::input            },
+            {"output_data_type",         required_argument, 0,                                    opt::output_data_type },
+            {"output",                   required_argument, 0,                                    opt::output           },
+            {"algorithm",                required_argument, 0,                                    opt::algorithm        },
+            {"key_data_type",            required_argument, 0,                                    opt::key_data_type    },
+            {"key",                      required_argument, 0,                                    opt::key              },
+            {"iv_data_type",             required_argument, 0,                                    opt::iv_data_type     },
+            {"iv",                       required_argument, 0,                                    opt::iv               },
+            {"block_cipher_mode",        required_argument, 0,                                    opt::block_cipher_mode},
+            {"help",                     no_argument,       0,                                    opt::help             },
+            {"append_newline_to_output", no_argument,       &parameters.append_newline_to_output, 1                     },
+            {0,                          0,                 0,                                    0                     }
         };
 
         c = getopt_long(argc, argv, "", long_options, NULL);
@@ -277,6 +278,9 @@ int main(int argc, char** argv)
     action(buffer.get(), algorithm.get());
     preprocess_and_write(buffer.get(), output_stream.get());
 
+    if (parameters.append_newline_to_output)
+        *output_stream << '\n';
+
     return 0;
 }
 
@@ -321,6 +325,8 @@ void display_help()
                  "\n"
                  "Help:\n"
                  "  --help\n"
+                 "Miscellaneous:\n"
+                 "  --append_newline_to_output"
                  "\n";
 }
 

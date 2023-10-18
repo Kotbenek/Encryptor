@@ -44,6 +44,8 @@ Options:
 
 Help:
   --help
+Miscellaneous:
+  --append_newline_to_output
 ```
 
 ## Tests

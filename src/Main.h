@@ -34,6 +34,7 @@ struct
     int iv_data_type = data_type::not_set;
     std::string iv;
     int block_cipher_mode = block_cipher_mode::not_set;
+    int append_newline_to_output = 0;
 } parameters;
 
 int main(int argc, char** argv);
