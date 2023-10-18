@@ -2,6 +2,7 @@
 
 #include "Array.h"
 #include "EncryptionAlgorithm.h"
+#include "block_cipher_mode.h"
 
 #include <cstdint>
 

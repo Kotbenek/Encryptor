@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Array.h"
+#include "block_cipher_mode.h"
 
 #include <iostream>
 
