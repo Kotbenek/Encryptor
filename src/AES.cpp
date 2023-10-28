@@ -96,6 +96,10 @@ uint8_t AES::set_block_cipher_mode(int block_cipher_mode)
             __encrypt_block_cipher_mode = &AES::__encrypt_CBC;
             __decrypt_block_cipher_mode = &AES::__decrypt_CBC;
             return 0;
+        case block_cipher_mode::PCBC:
+            __encrypt_block_cipher_mode = &AES::__encrypt_PCBC;
+            __decrypt_block_cipher_mode = &AES::__decrypt_PCBC;
+            return 0;
         default:
             return 1;
     }
@@ -525,6 +529,72 @@ uint8_t AES::__decrypt_CBC(Array* data)
 
     delete state;
     delete next_IV;
+
+    return 0;
+}
+
+uint8_t AES::__encrypt_PCBC(Array* data)
+{
+    if (!Round_Key)
+        return 1;
+    if (!IV)
+        return 1;
+
+    Array* state = new Array(STATE_SIZE);
+    Array* plaintext = new Array(STATE_SIZE);
+
+    for (uint64_t i = 0; i < data->size(); i += STATE_SIZE)
+    {
+        //Store plaintext for construction of IV for next block
+        std::copy(&data->data[i], &data->data[STATE_SIZE + i], plaintext->data);
+
+        //Add IV
+        for (uint8_t j = 0; j < STATE_SIZE; j++)
+            data->data[j + i] ^= IV->data[j];
+
+        //Encrypt data
+        __encrypt(data, state, i);
+
+        //Construct IV for next block
+        for (uint8_t j = 0; j < STATE_SIZE; j++)
+            IV->data[j] = plaintext->data[j] ^ data->data[j + i];
+    }
+
+    delete state;
+    delete plaintext;
+
+    return 0;
+}
+
+uint8_t AES::__decrypt_PCBC(Array* data)
+{
+    if (!Round_Key)
+        return 1;
+    if (!IV)
+        return 1;
+
+    Array* state = new Array(STATE_SIZE);
+    Array* ciphertext = new Array(STATE_SIZE);
+
+    for (uint64_t i = 0; i < data->size(); i += STATE_SIZE)
+    {
+        //Store ciphertext for construction of IV for next block
+        std::copy(&data->data[i], &data->data[STATE_SIZE + i], ciphertext->data);
+
+        //Decrypt data
+        __decrypt(data, state, i);
+
+        //Add IV
+        for (uint8_t j = 0; j < STATE_SIZE; j++)
+            data->data[j + i] ^= IV->data[j];
+
+        //Construct IV for next block
+        for (uint8_t j = 0; j < STATE_SIZE; j++)
+            IV->data[j] = ciphertext->data[j] ^ data->data[j + i];
+    }
+
+    delete state;
+    delete ciphertext;
 
     return 0;
 }

@@ -108,7 +108,7 @@ test_encrypt_decrypt_aes_data()
 
 DATA_INPUT_TYPES=("base16" "base64")
 AES_SIZES=("128" "192" "256")
-BLOCK_CIPHER_MODES=("ecb" "cbc")
+BLOCK_CIPHER_MODES=("ecb" "cbc" "pcbc")
 
 for block_cipher_mode in "${BLOCK_CIPHER_MODES[@]}"; do
     for aes_size in "${AES_SIZES[@]}"; do

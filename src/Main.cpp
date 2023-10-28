@@ -197,6 +197,7 @@ int main(int argc, char** argv)
         case block_cipher_mode::ECB:
             break;
         case block_cipher_mode::CBC:
+        case block_cipher_mode::PCBC:
             if (!iv)
             {
                 std::cerr << "Missing IV.\n";
@@ -322,6 +323,7 @@ void display_help()
                  "<block_cipher_mode>:\n"
                  "  ecb\n"
                  "  cbc\n"
+                 "  pcbc\n"
                  "\n"
                  "Help:\n"
                  "  --help\n"

@@ -75,4 +75,6 @@ private:
     uint8_t __decrypt_ECB(Array* data);
     uint8_t __encrypt_CBC(Array* data);
     uint8_t __decrypt_CBC(Array* data);
+    uint8_t __encrypt_PCBC(Array* data);
+    uint8_t __decrypt_PCBC(Array* data);
 };

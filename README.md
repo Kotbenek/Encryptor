@@ -41,6 +41,7 @@ Options:
 <block_cipher_mode>:
   ecb
   cbc
+  pcbc
 
 Help:
   --help
@@ -126,5 +127,53 @@ Run `./build_and_test.sh` to compile `./bin/encryptor` and launch tests.
 [PASS] data, input base64, output base64, AES256, CBC, key base16, IV base64
 [PASS] data, input base64, output base64, AES256, CBC, key base64, IV base16
 [PASS] data, input base64, output base64, AES256, CBC, key base64, IV base64
-72/72 tests passed
+[PASS] data, input base16, output base16, AES128, PCBC, key base16, IV base16
+[PASS] data, input base16, output base16, AES128, PCBC, key base16, IV base64
+[PASS] data, input base16, output base16, AES128, PCBC, key base64, IV base16
+[PASS] data, input base16, output base16, AES128, PCBC, key base64, IV base64
+[PASS] data, input base16, output base64, AES128, PCBC, key base16, IV base16
+[PASS] data, input base16, output base64, AES128, PCBC, key base16, IV base64
+[PASS] data, input base16, output base64, AES128, PCBC, key base64, IV base16
+[PASS] data, input base16, output base64, AES128, PCBC, key base64, IV base64
+[PASS] data, input base64, output base16, AES128, PCBC, key base16, IV base16
+[PASS] data, input base64, output base16, AES128, PCBC, key base16, IV base64
+[PASS] data, input base64, output base16, AES128, PCBC, key base64, IV base16
+[PASS] data, input base64, output base16, AES128, PCBC, key base64, IV base64
+[PASS] data, input base64, output base64, AES128, PCBC, key base16, IV base16
+[PASS] data, input base64, output base64, AES128, PCBC, key base16, IV base64
+[PASS] data, input base64, output base64, AES128, PCBC, key base64, IV base16
+[PASS] data, input base64, output base64, AES128, PCBC, key base64, IV base64
+[PASS] data, input base16, output base16, AES192, PCBC, key base16, IV base16
+[PASS] data, input base16, output base16, AES192, PCBC, key base16, IV base64
+[PASS] data, input base16, output base16, AES192, PCBC, key base64, IV base16
+[PASS] data, input base16, output base16, AES192, PCBC, key base64, IV base64
+[PASS] data, input base16, output base64, AES192, PCBC, key base16, IV base16
+[PASS] data, input base16, output base64, AES192, PCBC, key base16, IV base64
+[PASS] data, input base16, output base64, AES192, PCBC, key base64, IV base16
+[PASS] data, input base16, output base64, AES192, PCBC, key base64, IV base64
+[PASS] data, input base64, output base16, AES192, PCBC, key base16, IV base16
+[PASS] data, input base64, output base16, AES192, PCBC, key base16, IV base64
+[PASS] data, input base64, output base16, AES192, PCBC, key base64, IV base16
+[PASS] data, input base64, output base16, AES192, PCBC, key base64, IV base64
+[PASS] data, input base64, output base64, AES192, PCBC, key base16, IV base16
+[PASS] data, input base64, output base64, AES192, PCBC, key base16, IV base64
+[PASS] data, input base64, output base64, AES192, PCBC, key base64, IV base16
+[PASS] data, input base64, output base64, AES192, PCBC, key base64, IV base64
+[PASS] data, input base16, output base16, AES256, PCBC, key base16, IV base16
+[PASS] data, input base16, output base16, AES256, PCBC, key base16, IV base64
+[PASS] data, input base16, output base16, AES256, PCBC, key base64, IV base16
+[PASS] data, input base16, output base16, AES256, PCBC, key base64, IV base64
+[PASS] data, input base16, output base64, AES256, PCBC, key base16, IV base16
+[PASS] data, input base16, output base64, AES256, PCBC, key base16, IV base64
+[PASS] data, input base16, output base64, AES256, PCBC, key base64, IV base16
+[PASS] data, input base16, output base64, AES256, PCBC, key base64, IV base64
+[PASS] data, input base64, output base16, AES256, PCBC, key base16, IV base16
+[PASS] data, input base64, output base16, AES256, PCBC, key base16, IV base64
+[PASS] data, input base64, output base16, AES256, PCBC, key base64, IV base16
+[PASS] data, input base64, output base16, AES256, PCBC, key base64, IV base64
+[PASS] data, input base64, output base64, AES256, PCBC, key base16, IV base16
+[PASS] data, input base64, output base64, AES256, PCBC, key base16, IV base64
+[PASS] data, input base64, output base64, AES256, PCBC, key base64, IV base16
+[PASS] data, input base64, output base64, AES256, PCBC, key base64, IV base64
+120/120 tests passed
 ```
