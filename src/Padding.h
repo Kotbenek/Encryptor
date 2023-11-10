@@ -21,4 +21,12 @@ namespace Padding
         static bool check(Array* data);
         static void remove(Array* data);
     };
+
+    class ISO7816
+    {
+    public:
+        static void append(Array* data, uint8_t alignment);
+        static bool check(Array* data);
+        static void remove(Array* data);
+    };
 } //namespace Padding
