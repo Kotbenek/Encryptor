@@ -3,6 +3,7 @@
 #include "Array.h"
 #include "block_cipher_mode.h"
 
+#include <cstdint>
 #include <iostream>
 
 class EncryptionAlgorithm
