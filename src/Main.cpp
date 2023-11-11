@@ -5,7 +5,7 @@
 #include "Base16.h"
 #include "Base64.h"
 #include "EncryptionAlgorithm.h"
-#include "Padding.h"
+#include "PKCS7.h"
 #include "action.h"
 #include "algorithm.h"
 #include "block_cipher_mode.h"
@@ -344,19 +344,19 @@ void action_decrypt_no_padding(Array* data, EncryptionAlgorithm* algorithm)
 
 void action_encrypt(Array* data, EncryptionAlgorithm* algorithm)
 {
-    Padding::PKCS7::append(data, algorithm->get_required_input_alignment());
+    PKCS7::append(data, algorithm->get_required_input_alignment());
     algorithm->encrypt(data);
 }
 
 void action_decrypt(Array* data, EncryptionAlgorithm* algorithm)
 {
     algorithm->decrypt(data);
-    if (!Padding::PKCS7::check(data))
+    if (!PKCS7::check(data))
     {
         std::cerr << "Padding corrupted - decryption not successful.\n";
         std::exit(1);
     }
-    Padding::PKCS7::remove(data);
+    PKCS7::remove(data);
 }
 
 void preprocess_and_write_base16(Array* data, std::ostream* stream)
