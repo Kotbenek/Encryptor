@@ -44,11 +44,11 @@ Options:
   ecb
   cbc
   pcbc
-
 <padding_algorithm>:
   pkcs7
   x923
   iso7816
+
 Help:
   --help
 Miscellaneous:
