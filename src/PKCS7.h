@@ -8,7 +8,7 @@
 class PKCS7 : public PaddingAlgorithm
 {
 public:
-    static void append(Array* data, uint8_t alignment);
-    static bool check(Array* data);
-    static void remove(Array* data);
+    void append(Array* data, uint8_t alignment);
+    bool check(Array* data);
+    void remove(Array* data);
 };

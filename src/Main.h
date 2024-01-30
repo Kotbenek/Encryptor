@@ -2,10 +2,12 @@
 
 #include "Array.h"
 #include "EncryptionAlgorithm.h"
+#include "PaddingAlgorithm.h"
 #include "action.h"
 #include "algorithm.h"
 #include "block_cipher_mode.h"
 #include "data_type.h"
+#include "padding.h"
 
 #include <string>
 
@@ -34,6 +36,7 @@ struct
     int iv_data_type = data_type::not_set;
     std::string iv;
     int block_cipher_mode = block_cipher_mode::not_set;
+    int padding = padding::not_set;
     int append_newline_to_output = 0;
 } parameters;
 
@@ -41,8 +44,10 @@ int main(int argc, char** argv);
 void display_help();
 void action_encrypt_no_padding(Array* data, EncryptionAlgorithm* algorithm);
 void action_decrypt_no_padding(Array* data, EncryptionAlgorithm* algorithm);
-void action_encrypt(Array* data, EncryptionAlgorithm* algorithm);
-void action_decrypt(Array* data, EncryptionAlgorithm* algorithm);
+void action_encrypt(Array* data, EncryptionAlgorithm* algorithm,
+                    PaddingAlgorithm* padding_algorithm);
+void action_decrypt(Array* data, EncryptionAlgorithm* algorithm,
+                    PaddingAlgorithm* padding_algorithm);
 void preprocess_and_write_base16(Array* data, std::ostream* stream);
 void preprocess_and_write_base64(Array* data, std::ostream* stream);
 void preprocess_and_write_raw(Array* data, std::ostream* stream);

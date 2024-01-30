@@ -15,6 +15,7 @@ namespace opt
         iv_data_type,
         iv,
         block_cipher_mode,
+        padding,
         help
     };
 }

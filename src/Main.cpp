@@ -1,17 +1,21 @@
 #include "Main.h"
 
 #include "AES.h"
+#include "ANSI_X923.h"
 #include "Array.h"
 #include "Base16.h"
 #include "Base64.h"
 #include "EncryptionAlgorithm.h"
+#include "ISO7816.h"
 #include "PKCS7.h"
+#include "PaddingAlgorithm.h"
 #include "action.h"
 #include "algorithm.h"
 #include "block_cipher_mode.h"
 #include "data_type.h"
 #include "membuf.h"
 #include "opt.h"
+#include "padding.h"
 
 #include <fstream>
 #include <getopt.h>
@@ -43,6 +47,7 @@ int main(int argc, char** argv)
             {"iv_data_type",             required_argument, 0,                                    opt::iv_data_type     },
             {"iv",                       required_argument, 0,                                    opt::iv               },
             {"block_cipher_mode",        required_argument, 0,                                    opt::block_cipher_mode},
+            {"padding",                  required_argument, 0,                                    opt::padding          },
             {"help",                     no_argument,       0,                                    opt::help             },
             {"append_newline_to_output", no_argument,       &parameters.append_newline_to_output, 1                     },
             {0,                          0,                 0,                                    0                     }
@@ -82,6 +87,8 @@ int main(int argc, char** argv)
                 break;
             case opt::block_cipher_mode:
                 parse_parameter(block_cipher_mode, block_cipher_mode);
+            case opt::padding:
+                parse_parameter(padding, padding);
             case opt::help:
                 display_help();
                 return 0;
@@ -217,7 +224,25 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    void (*action)(Array * data, EncryptionAlgorithm * algorithm) = NULL;
+    std::unique_ptr<PaddingAlgorithm> padding_algorithm;
+    switch (parameters.padding)
+    {
+        case padding::PKCS7:
+            padding_algorithm = std::unique_ptr<PaddingAlgorithm>(new PKCS7());
+            break;
+        case padding::ANSI_X923:
+            padding_algorithm = std::unique_ptr<PaddingAlgorithm>(new ANSI_X923());
+            break;
+        case padding::ISO7816:
+            padding_algorithm = std::unique_ptr<PaddingAlgorithm>(new ISO7816());
+            break;
+        default:
+            std::cerr << "Invalid padding algorithm.\n";
+            return 1;
+    }
+
+    void (*action)(Array * data, EncryptionAlgorithm * algorithm,
+                   PaddingAlgorithm * padding_algorithm) = NULL;
     void (*action_no_padding)(Array * data, EncryptionAlgorithm * algorithm) = NULL;
     switch (parameters.action)
     {
@@ -276,7 +301,7 @@ int main(int argc, char** argv)
     }
 
     buffer->resize(gcount);
-    action(buffer.get(), algorithm.get());
+    action(buffer.get(), algorithm.get(), padding_algorithm.get());
     preprocess_and_write(buffer.get(), output_stream.get());
 
     if (parameters.append_newline_to_output)
@@ -310,6 +335,8 @@ void display_help()
                  "    --iv <data>\n"
                  "  Block cipher mode:\n"
                  "    --block_cipher_mode <block_cipher_mode>\n"
+                 "  Padding algorithm:\n"
+                 "    --padding <padding_algorithm>\n"
                  "\n"
                  "<data_type>:\n"
                  "  base16\n"
@@ -325,6 +352,10 @@ void display_help()
                  "  cbc\n"
                  "  pcbc\n"
                  "\n"
+                 "<padding_algorithm>:\n"
+                 "  pkcs7\n"
+                 "  x923\n"
+                 "  iso7816\n"
                  "Help:\n"
                  "  --help\n"
                  "Miscellaneous:\n"
@@ -342,21 +373,23 @@ void action_decrypt_no_padding(Array* data, EncryptionAlgorithm* algorithm)
     algorithm->decrypt(data);
 }
 
-void action_encrypt(Array* data, EncryptionAlgorithm* algorithm)
+void action_encrypt(Array* data, EncryptionAlgorithm* algorithm,
+                    PaddingAlgorithm* padding_algorithm)
 {
-    PKCS7::append(data, algorithm->get_required_input_alignment());
+    padding_algorithm->append(data, algorithm->get_required_input_alignment());
     algorithm->encrypt(data);
 }
 
-void action_decrypt(Array* data, EncryptionAlgorithm* algorithm)
+void action_decrypt(Array* data, EncryptionAlgorithm* algorithm,
+                    PaddingAlgorithm* padding_algorithm)
 {
     algorithm->decrypt(data);
-    if (!PKCS7::check(data))
+    if (!padding_algorithm->check(data))
     {
         std::cerr << "Padding corrupted - decryption not successful.\n";
         std::exit(1);
     }
-    PKCS7::remove(data);
+    padding_algorithm->remove(data);
 }
 
 void preprocess_and_write_base16(Array* data, std::ostream* stream)
